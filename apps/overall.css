@@ -1,0 +1,67 @@
+.button1 {
+  border-radius: 0px;
+  color: #ffffff;
+  background-color: #aa0000;
+  border: 1px solid #ffffff;
+  width: 130px;
+  height: 30px;
+  display: block;
+  /*transform: rotate(-20deg);*/
+}
+
+.button1:hover {
+  background-color: #550000;
+}
+
+.button2 {
+  border-radius: 0px;
+  color: #ffffff;
+  background-color: #aa0000;
+  border: 1px solid #ffffff;
+  width: 100px;
+  height: 30px;
+  display: inline;
+  /*transform: rotate(-20deg);*/
+}
+
+.button2:hover {
+  background-color: #550000;
+}
+
+.centered {
+  float: left;
+  position: relative;
+  left: 30%;
+}
+
+.centered2 {
+  float: left;
+  position: relative;
+  left: 10%;
+}
+
+
+.widhinp {
+  display: inline-block;
+  width: 6em;
+  position: relative;
+}
+
+.widhlabel {
+  display: inline-block;
+  text-align: center;
+  width: 6em;
+  margin-right: 0.5em;
+}
+
+table{
+  border: 3px solid black;
+  border-collapse: collapse;
+}
+
+td{
+  border: 1px solid grey;
+  margin-left: 0px;
+  margin-top: 0px;
+}
+
