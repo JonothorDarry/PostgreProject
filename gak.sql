@@ -74,6 +74,10 @@ create table Hero(
     name varchar(50) primary key,
     color varchar(50) not null,
     id_army int unique not null,
+    attack uint,
+    defence uint,
+    might uint,
+    wisdom uint,
     constraint fk_playh foreign key(color) references player(color)
 );
 
@@ -215,6 +219,8 @@ create trigger dual_army_checker
 	on army
 	for each row
 	execute procedure two_armies();
+
+
 
 --metawiedza
 insert into Resources values(1000, 0, 0, 0, 0, 0, 0);
