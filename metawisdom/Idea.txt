@@ -1,0 +1,32 @@
+Procedury, funkcje i triggery, które dodam, to:
+1) Funkcja zwracająca dla każdego atrybutu sumę atrybutów(Health, Minimum Damage, Maximum Damage, Speed, Attack, Defence) wszystkich jednostek należacych do armii bohatera gracza danego koloru.
+2) Procedura usuwająca gracza danego koloru razem z jego obiektami z mapy (włącznie z armiami należacymi do jego bohaterów, zamki należace do gracza stają się neutralne).
+3) Trigger odpowiadający za sprawdzenie, czy w danym punkcie mapy nie ma już 2 armii przed wstawieniem armii na dany punkt.
+4) Trigger odpowiadający za sprawdzenie, czy zamek relacji "Building in castle on map" wynikający z klucza obcego odwołującego się do relacji "Castle on map" pokrywa się z kluczem głównym relacji "Building in castle on map".
+
+
+
+
+
+
+
+
+
+
+
+
+Składa się on z 11 encji, po kolei:
+1) Resources - Encja silna, ma 1 atrybut złożony, który ją jednoznacznie identyfikuje. Służy do oznaczenia, jaka jest cena za stworzenie danej jednostki/budynku w zamku. Atrybut identyfikujący to zbiór 7 atrybutów, które oznaczają cenę (np. Unit o nazwie "KK" kosztuje 5 jednostek zasobu "A", 10 jednostek zasobu "B" itd.) Wchodzi w relację z encją Unit (1 Unit ma dokładnie jedną cenę, 1 Resources może się odwoływać do 0 lub wielu jednostek), a także encją "Castle Building" - też dokładnie 1 cena dla budynku, 1 cena może być przypisana 0 lub wielu budynkom.
+2) "Castle Building" - Encja słaba, Identyfikowana przez encję Castle i własny atrybut "Build Name". Oznacza jakiś budynek, który można wybudować w konkretnym zamku. Wchodzi w relację identyfikującą z encją "Castle" (budynek należy do dokładnie 1 zamku, zamek może posiadać od 0 do wielu budynków), z encją "Building in Castle on Map", którą identyfikuje wraz z inną encją, a także z encją Resources.
+3) Castle - encja silna, jednoznacznie identyfikowana przez własny atrybut - nazwę. Oznacza jakiś typ zamku, którego instancja może zostać utworzona na mapie (od 0 do wielu razy; zamek na mapie musi mieć zdefiniowany dokładnie 1 typ). W zamku można tworzyć jakieś jednostki - od 0 do wielu, także budynki od 0 do wielu.
+4) Unit - encja silna, identyfikowana przez nazwę. Oznacza jakiś typ jednostki, która albo może zostać utworzona w jakimś konkretnym zamku, albo w żadnym - stąd relacja z encją Castle. Jednostka kosztuje, stąd jej relacja z encją Resources. Jednostka może znajdować się w armii, stąd relacja z encją Army_Connect
+5) Player - encja silna, identyfikowana jednoznacznie przez kolor. Gracz może posiadać na wyłączność jakichś bohaterów i zamki, przy czym nie są one konieczne (stąd relacje 0 do wielu)
+6) Hero - encja silna, identyfikowana jednoznacznie przez imię. Bohater należy do dokładnie 1 gracza. Bohater musi mieć dokładnie 1 armię.
+7) Army - encja silna. Musi być identyfikowana przez id, ponieważ nie musi mieć bohatera i na 1 punkcie mapy mogą leżeć 2 armie - a zatem nie da się rozróżnić 2 armii za pomocą pozostałych encji ani jej własności. Może mieć od 0 do 1 bohatera, musi leżeć na jakimś pojedynczym punkcie mapy. Składa się z jednostek, których liczba (i pozycja) jest z przedziału od 1 do 7 - stąd połączenie z army connect
+8) Army Connect - encja słaba, jednoznacznie identyfikowana przez armię i władny atrybut - pozycję. Sama encja służy do połączenia pojedynczej armii ze zbiorem jednostek, które do niej należą. Jedna instancja tej encji oznacza, że armia, która identyfikuje tą instancję jest posiadaczem jednostki, do której odwołuje się ta instancja tej encji na pozycji, która jest atrybutem tej encji. Wchodzi w relację z encją Unit - 1 jednostka może mieć relację wieloma instancjami tej encji, instancja encji Army Connect łączy armię z dokładnie 1 typem jednostki
+9) Point on Map - Encja silna, identyfikowana przez atrybut złożony - pozycję na osi rzędnych i odciętych. Oznacza pozycję na mapie, na której coś może się znajdować. Łączy się z encjami "Castle on Map" (1 zamek leży w 1 punkcie, który go jednoznacznie identyfikuje, na punkcie nie musi leżeć zamek) i Army - 1 armia leży w 1 puncie, ale na 1 punkcie mogą leżeć od 0 do 2 armii.
+10) Castle on Map - Encja słaba, jednoznacznie identyfikowana przez punkt na mapie. Jest w relacji z typem zamku (Castle), którego instancją jest ten konkretny zamek w tym punkcie - 1 typ zamku może mieć wiele instancji na mapie, ale każda instancja jest jednego typu).
+11) Building in Castle on Map - Encja słaba - Budynek w zamku na mapie - jest jednoznacznie identyfikowany przez atrybuty identyfikujące zamku na mapie (czyli przez punkt na mapie), a także typ tego budynku (czyli encję "Castle Building"). Oznacza jakiś budynek jakiegoś typu (stąd relacja identyfikująca z "Castle Building") zbudowany w jakimś konkretnym zamku na mapie (stąd relacja identyfikująca z "Castle on Map").
+
+Pierwsze 4 encje to jakieś wypełnione na początku, bez dostępu użytkownika typy, z których użytkownik może tworzyć armie, zamki czy budynki w tychże zamkach porozmieszczane, podobnie point on map jest zależny od początkowego rozmiaru mapy, raczej nie zmieni się w trakcie działania aplikacji dla 1 mapy. Wszystkie pozostałe encje dotyczą (poza encją Player) jakichś obiektów na mapie. Gracz może posiadać bohaterów i zamki, zamki konkretnego typu (3. encja) posiadają wybudowane w nich budowle typu zdefiniowanego w 2. encji, zaś armie posiadają jednostki zdefiniowane w 4. encji.
+
