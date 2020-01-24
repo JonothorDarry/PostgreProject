@@ -80,9 +80,9 @@ def interactor(engine, query):
             if (re.search('fk_armyxy', comm)):
                 comm="You tried to place army on non-existent point of map!"
             if (re.search('fk_tohero', comm)):
-                comm="This hero already have another army!" 
+                comm="This hero doesn't exist!" 
             if (re.search('fk_toarmy', comm)):
-                comm="This army already has a hero!"
+                comm="This army doesn't exist!"
 
             if (re.search('fk_armycon', comm)):
                 comm="This army doesn't exist!"
@@ -100,6 +100,18 @@ def interactor(engine, query):
                 comm="This type of building doesn't exist for that castle!"
             if (re.search('fk_xy_place', comm)):
                 comm="You tried to attach building on non-existent point on map!"
+        
+        if (re.search("violates not-null constraint", comm)):
+            if (re.search("id_army", comm)):
+                comm="You must fill army id field!!"
+            if (re.search("color", comm)):
+                comm="You cannot create a hero without player!"
+            if (re.search('"x"', comm) or re.search('"y"', comm)):
+                comm="You cannot leave empty map coordinates!"
+            if (re.search("castle", comm)):
+                comm="You need to provide a castle type!"
+            if (re.search("unit_name", comm)):
+                comm="You need to provide unit name!"
 
 
     else:
@@ -111,9 +123,39 @@ def interactor(engine, query):
 engine = create_engine('postgresql+psycopg2://postgres:dayne@localhost:54320/postgres', echo = True)
 
 #x=parser("player", "insert", {"color":"purpleindicularpenissusmaximusvulpusssiusBanusIncultosMallusMallocusClangosCythonus"}, {})
-x=parser("hero", "insert", {"name":"Jonasz", "color":"blat"})
+x=parser("hero", "insert", {"name":"Jonasz", "id_army":25})
 s=interactor(engine, x)
+
 print(s)
+x=parser("hero", "insert", {"color":"red", "name":"Goldenberginho", "id_army":2})
+s=interactor(engine, x)
+
+print(s)
+x=parser("army", "insert", {"x":127, "y":141, "hero_name":"Goldenberginho"})
+s=interactor(engine, x)
+
+print(s)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 #x=parser("army", "insert", {"x":12, "y":13}, {})
