@@ -2,6 +2,9 @@
 --';' is a delimiter
 
 --Wyrzucanie starych tabel
+drop function firepower(text);
+drop function map_creator(uint, uint);
+
 drop table Building_in_castle_on_map;
 drop table Castle_on_map;
 drop table Army_connect cascade;
@@ -53,6 +56,12 @@ create table Unit(
     unit_name varchar(50) primary key,
     castle_name varchar(50),
     id_resources int not null,
+    attack uint,
+    defence uint,
+    health uint,
+    speed uint,
+    minimum_damage uint,
+    maximum_damage uint,
     constraint fk_idresu foreign key(id_resources) references Resources(id_resource),
     constraint fk_castleu foreign key(castle_name) references Castles(castle_name)
 );
@@ -128,22 +137,80 @@ create table Building_in_castle_on_map(
 );
 
 --Wstawienie do mapy punktów : przepisać na procedurę po argumentach width, height
-do $$
+create or replace function map_creator(x1 uint, x2 uint)
+	returns void as
+$$
 declare
 	i integer:=0;
 	j integer:=0;
 begin
 	loop
-		exit when i>150;
+		exit when i>x1;
 		loop
-			exit when j>150;
+			exit when j>x2;
 			insert into point_on_map values(i, j);
 			j:=j+1;
 		end loop;
 		j:=0;
 		i:=i+1;
 	end loop;
+end $$
+language plpgsql volatile;
+
+--Ścięcie gracza, usunięcie wszystkich jego bohaterów i armii, zmiana wszystkich jego miast na neutralne(color=NULL)
+create or replace procedure player_slayer(x1 text)
+	language plpgsql as
+$$
+begin
+	delete from army_connect
+	where id_army in(
+		select a.id_army
+		from army a
+		left join hero h on h.id_army=a.id_army
+		where h.color=x1
+	);
+	
+	alter table hero disable trigger all;
+	alter table army disable trigger all;
+	
+	delete from army
+	where id_army in(
+		select id_army
+		from hero
+		where color=x1
+	);
+	
+	delete from hero
+	where color=x1;
+
+	alter table hero enable trigger all;
+	alter table army enable trigger all;
+
+	update castle_on_map
+	set color=null
+	where color=x1;
+	
+	delete from player
+	where color=x1;
+
 end $$;
+
+create or replace function firepower(x1 text)
+	returns table(max_d bigint, min_d bigint, att bigint, def bigint, health bigint, speed bigint) as
+$$
+begin
+	return query
+	select sum(a.number_of_units*u.maximum_damage), sum(a.number_of_units*u.minimum_damage), sum(a.number_of_units*u.attack), sum(a.number_of_units*u.defence),
+   		sum(a.number_of_units*u.health), sum(a.number_of_units*u.speed)
+	from unit u
+	left join army_connect a on a.unit_name=u.unit_name
+	left join army ar on ar.id_army=a.id_army
+	left join hero h on h.id_army=ar.id_army
+	where h.color=x1;
+end $$
+LANGUAGE plpgsql VOLATILE;
+
+
 
 
 --budynek w zamku - wyzwalacz sprawdzający, czy zamki się pokrywają
@@ -221,6 +288,9 @@ create trigger dual_army_checker
 	execute procedure two_armies();
 
 
+DO $$ BEGIN
+    perform map_creator(150, 150);
+END $$;
 
 --metawiedza
 insert into Resources values(1000, 0, 0, 0, 0, 0, 0);
@@ -234,9 +304,57 @@ insert into Castles values('inferno');
 insert into castle_building values('Kapitol', 'rampart', 2);
 insert into castle_building values('Kapitol', 'inferno', 2);
 insert into castle_on_map values(32,23,null,'rampart');
-insert into unit values('Unicorn', 'rampart', 3);
-insert into unit values('Devil', 'inferno', 2);
+
+
+
+insert into unit values('Unicorn', 'rampart', 3, 5, 6, 1, 2, 3, 1);
+insert into unit values('Devil', 'inferno', 2, 1, 3, 41, 23, 231, 12);
+
+--firepower test
+insert into castle_on_map values(50, 52, 'red', 'inferno');
+insert into castle_on_map values(50, 57, 'green', 'inferno');
+insert into castle_on_map values(50, 59, 'blue', 'inferno');
+insert into castle_on_map values(57, 52, 'red', 'inferno');
+insert into army values(12, 35, null);
+insert into army values(12, 36, null);
+insert into army values(12, 37, null);
+
+insert into army_connect values(1, 1, 'Unicorn', 10);
+insert into army_connect values(2, 2, 'Devil', 20);
+insert into army_connect values(3, 7, 'Devil', 1);
+
+insert into hero values('Jonasz', 'red', 1);
+insert into hero values('Ozjasz', 'blue', 2);
+insert into hero values('Elizeusz', 'red', 3);
+
+	
+
+
+DO $$ 
+declare
+	x1 bigint;
+	x2 bigint;
+	x3 bigint;
+	x4 bigint;
+	x5 uint;
+	x6 uint;
+BEGIN
+ 	select max_d, min_d, att, def into x1, x2, x3, x4
+	from firepower('red');
+	raise notice 'Value: %', x1;
+
+	select x into x1
+	from army
+	where y=36;
+	raise notice 'Value: %', x1;
+END $$;
+
+/*
+DO $$ BEGIN
+	call player_slayer('red');
+END $$;
 
 
 select *
 from Resources;
+*/
