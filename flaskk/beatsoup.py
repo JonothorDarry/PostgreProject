@@ -1,0 +1,13 @@
+from bs4 import BeautifulSoup
+
+def changer(html_file):
+    soup = BeautifulSoup(html_file, 'html.parser')
+    fil=open('../apps/overall.css')
+    z=fil.read()
+    z="<head>\n<style>\n"+z+"\n</style>\n</head>"
+
+    zk=BeautifulSoup(z, 'html.parser')
+    soup.head.replace_with(zk)
+    d=soup.prettify()
+    return d
+
