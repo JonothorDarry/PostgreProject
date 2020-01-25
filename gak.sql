@@ -292,24 +292,8 @@ DO $$ BEGIN
     perform map_creator(150, 150);
 END $$;
 
---metawiedza
-insert into Resources values(1000, 0, 0, 0, 0, 0, 0);
-insert into Resources values(1021, 0, 0, 0, 0, 0, 0);
-insert into Resources values(1021, 3, 0, 0, 0, 0, 0);
-insert into Player values('red');
-insert into Player values('blue');
-insert into Player values('green');
-insert into Castles values('rampart');
-insert into Castles values('inferno');
-insert into castle_building values('Kapitol', 'rampart', 2);
-insert into castle_building values('Kapitol', 'inferno', 2);
-insert into castle_on_map values(32,23,null,'rampart');
 
-
-
-insert into unit values('Unicorn', 'rampart', 3, 5, 6, 1, 2, 3, 1);
-insert into unit values('Devil', 'inferno', 2, 1, 3, 41, 23, 231, 12);
-
+/*
 --firepower test
 insert into castle_on_map values(50, 52, 'red', 'inferno');
 insert into castle_on_map values(50, 57, 'green', 'inferno');
@@ -349,7 +333,7 @@ BEGIN
 	raise notice 'Value: %', x1;
 END $$;
 
-/*
+
 DO $$ BEGIN
 	call player_slayer('red');
 END $$;
