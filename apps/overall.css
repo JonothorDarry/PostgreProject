@@ -71,3 +71,9 @@ td{
   margin-top: 0px;
 }
 
+.wrapped{
+  position:relative;
+  width:500px;
+  height:300px;
+  overflow:scroll;
+}

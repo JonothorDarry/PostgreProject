@@ -11,3 +11,8 @@ def changer(html_file):
     d=soup.prettify()
     return d
 
+def supchanger(html, idd, new):
+    html=BeautifulSoup(html, 'html.parser')
+    new=BeautifulSoup(new, 'html.parser')
+    html.findAll('table', id=idd)[0].replaceWith(new)
+    return html.prettify()

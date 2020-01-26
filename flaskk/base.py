@@ -1,5 +1,6 @@
 from flask import Flask, redirect, url_for, request
-from beatsoup import changer
+from beatsoup import *
+from alchlib import *
 
 app = Flask(__name__)
 
@@ -25,6 +26,12 @@ def metas():
     if (request.method=='GET'):
         fil=open('../apps/4meta.html')
         cf=fil.read()
+        arr=["unit", "resources", "castles", "castle_building"]
+        for x in arr:
+            y=selector(engine, x)
+            z=selhtmler(x, y)
+            cf=supchanger(cf, x, z)
+
         return changer(cf)
     if (request.method=='POST'):
         z=request.form['which']
@@ -194,4 +201,5 @@ def hello_world():
         return redirect(url_for('players'))
 
 if __name__ == '__main__':
+    engine = create_engine('postgresql+psycopg2://postgres:dayne@localhost:54320/postgres', echo = True)
     app.run()
