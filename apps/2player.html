@@ -9,9 +9,12 @@
 
       <div>
         <h2 style="text-align:center">Player Table</h2>
-        <button class=button2 style="display:inline-block">Insert</button>
-        <button class=button2 style="display:inline-block">Update</button>
-        <button class=button2 style="display:inline-block">Delete</button>
+        <button class=button2 style="display:inline-block" form="nonex" type="submit" formmethod="post" name="which" value="ins">Insert</button>
+        <button class=button2 style="display:inline-block" form="nonex" type="submit" formmethod="post" name="which" value="upd">Update</button>
+        <button class=button2 style="display:inline-block" form="nonex" type="submit" formmethod="post" name="which" value="del">Delete</button>
+
+	<form id="nonex"></form>
+
       </div>
 
 
@@ -41,9 +44,9 @@
       </div>
     </div>
     <div style="position:absolute; right:0px; bottom:0px;">
-      <button class=button1>Castles Table</button>
-      <button class=button1>Armies Table</button>
-      <button class=button1>Metaknowledge</button>
+      <button class=button1 form="nonex" type="submit" formmethod="post" name="which" value="cast">Castles Table</button>
+      <button class=button1 form="nonex" type="submit" formmethod="post" name="which" value="arm">Armies Table</button>
+      <button class=button1 form="nonex" type="submit" formmethod="post" name="which" value="met">Metaknowledge</button>
     </div>
     
     <div style="position:absolute; right:0px; top:0px; width:85%; height:85%; margin-right:0;">
