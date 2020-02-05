@@ -74,13 +74,18 @@ def interactor(engine, query, tp=None, arg=[]):
 
         elif (tp=='proc'):
             cursor.callproc(*arg)
+        
+        elif (tp=='procp'):
+            pv=str(*arg[1])
+            cursor.execute(f"do $$ begin call {arg[0]}('{pv}'); end $$;")
+
 
         cursor.close()
         connection.commit()
     except BaseException as ex:
-        comm=ex.args[0][re.search(' ', ex.args[0]).span()[1]:re.search('\n', ex.args[0]).span()[0]]
-
-        if (re.match('too long for type', comm)):
+        comm=ex.args[0][:re.search('\n', ex.args[0]).span()[0]]
+        print(comm)
+        if (re.search('too long for type character', comm)):
             comm="You cannot use names longer than 50 characters!"   
         if (re.search('unique', comm)):
             for x in _Dict_prime.keys():

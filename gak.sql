@@ -133,7 +133,7 @@ create table Building_in_castle_on_map(
 	castle varchar(50),
 	constraint pk_build_in_castle_on_map primary key(x, y, build_name, castle),
 	constraint fk_castle_build_map foreign key(castle, build_name) references Castle_building(castle_name, build_name),
-	constraint fk_xy_place foreign key(x, y) references Castle_on_map(x, y)
+	constraint fk_xy_place foreign key(x, y) references Castle_on_map(x, y) on update cascade
 );
 
 --Wstawienie do mapy punktów : przepisać na procedurę po argumentach width, height
@@ -222,8 +222,8 @@ declare
 	cs2 varchar(50);
 begin
 	select castle into cs1
-	from Castle_on_map
-	where Castle_on_map.x=new.x and Castle_on_map.y=new.y;
+	from Castle_on_map c
+	where c.x=new.x and c.y=new.y;
 	if cs1<>new.castle then
 		raise exception 'You merged incorrect types of castle!';
 	end if;
@@ -240,6 +240,33 @@ create trigger build_castle_correct
 	execute procedure build_castle_trigger();
 
 
+
+
+--Wyzwalcz czyszczący budynki po usunięciu/zmianie typu zamku
+create or replace function build_dissolver()
+	returns trigger as
+$$
+declare
+	cs1 varchar(50);
+	cs2 varchar(50);
+begin
+	if new is null or old.castle<>new.castle then
+		delete from Building_in_castle_on_map b	where b.x=old.x and b.y=old.y;
+	end if;
+	if new is null then
+		return old;
+	end if;
+	return new;
+end;
+$$
+LANGUAGE plpgsql VOLATILE
+COST 100;
+
+create trigger build_slayer
+	before delete or update
+	on castle_on_map
+	for each row
+	execute procedure build_dissolver();
 
 
 --Dodanie referencji do relacji army:
