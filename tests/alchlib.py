@@ -3,19 +3,18 @@ from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, 
 import psycopg2
 import re
 
-def changer(x, s1, s2):
+def schanger(x, s1, s2):
     if (x in s1):
         return s2
     return x
 
-def parser(table, opera, ins=None, wher=None):
-    
+def parser(table, opera, ins=None, wher=None): 
     exc=""
     if (opera=='insert'):
         ins1str=str([x for x in ins.keys()])[1:-1]
         ins2str=str([x for x in ins.values()])[1:-1]
-        ins1str="".join([changer(x, "'\"", "") for x in ins1str])
-        ins2str="".join([changer(x, '"', "'") for x in ins2str]) 
+        ins1str="".join([schanger(x, "'\"", "") for x in ins1str])
+        ins2str="".join([schanger(x, '"', "'") for x in ins2str]) 
         exc=opera+" into "+table+" ("+ins1str+")"+" values ("+ins2str+")"
     
     elif (opera=='update'):
@@ -52,16 +51,27 @@ def parser(table, opera, ins=None, wher=None):
     return exc+";"
 
 
+
+
 def interactor(engine, query, tp=None, arg=[]):
+    _Dict_prime={
+            'player_pkey':"Player already inserted!",
+            'pk_castle_on_map':"Castle already exists on that point!",
+            'pk_build_in_castle_on_map':"This building is already created in that castle!",
+            'pk_army_connect':"This army already has some unit on that position!",
+            'hero_pkey':"This hero name is already used!",
+            'pk_point':"This point already exists!",
+    }
+
+
     e=1
     comm=""
+    connection = engine.raw_connection()
+    cursor = connection.cursor()
     try:
-        connection = engine.raw_connection()
-        cursor = connection.cursor()
-        
         if (tp==None):
             cursor.execute(query)
-        
+
         elif (tp=='proc'):
             cursor.callproc(*arg)
 
@@ -69,21 +79,16 @@ def interactor(engine, query, tp=None, arg=[]):
         connection.commit()
     except BaseException as ex:
         comm=ex.args[0][re.search(' ', ex.args[0]).span()[1]:re.search('\n', ex.args[0]).span()[0]]
-        if (re.match('value too long', comm)):
-            comm="You cannot use names longer than 50 characters!"        
-        if (re.match('unique', comm)):
-            if (re.search('player_pkey', comm)):
-                comm="Player already inserted!"
-            if (re.search('pk_castle_on_map', comm)):
-                comm="Castle already exists on that point!"
-            if (re.search('pk_build_in_castle_on_map', comm)):
-                comm="This building is already created in that castle!"
-            if (re.search('pk_army_connect', comm)):
-                comm="This army already has some unit on that position!"
-            if (re.search('hero_pkey', comm)):
-                comm="This hero name is already used!"
+
+        if (re.match('too long for type', comm)):
+            comm="You cannot use names longer than 50 characters!"   
+        if (re.search('unique', comm)):
+            for x in _Dict_prime.keys():
+                if (re.search(x, comm)):
+                    comm=_Dict_prime[x]
+                    break
         
-        if (re.search("violates foreign key", comm)):
+        elif (re.search("violates foreign key", comm)):
             if (re.search('fk_playh', comm)):
                 comm="Player doesn't exist!"
             
@@ -111,7 +116,7 @@ def interactor(engine, query, tp=None, arg=[]):
             if (re.search('fk_xy_place', comm)):
                 comm="You tried to attach building on non-existent point on map!"
         
-        if (re.search("violates not-null constraint", comm)):
+        elif (re.search("violates not-null constraint", comm)):
             if (re.search("id_army", comm)):
                 comm="You must fill army id field!!"
             if (re.search("color", comm)):
@@ -123,85 +128,49 @@ def interactor(engine, query, tp=None, arg=[]):
             if (re.search("unit_name", comm)):
                 comm="You need to provide unit name!"
 
+
     else:
         e=0
+    
     finally:
         connection.close()
     return(e, comm)
 
 
-#hardcoded:postgres passwd host dbname
-engine = create_engine('postgresql+psycopg2://postgres:dayne@localhost:54320/postgres', echo = True)
 
-#x=parser("player", "insert", {"color":"purpleindicularpenissusmaximusvulpusssiusBanusIncultosMallusMallocusClangosCythonus"}, {})
-x=parser("hero", "insert", {"name":"Jonasz", "id_army":25})
-s=interactor(engine, x)
-
-print(s)
-x=parser("hero", "insert", {"color":"red", "name":"Goldenberginho", "id_army":2})
-s=interactor(engine, x)
-
-print(s)
-x=parser("army", "insert", {"x":127, "y":141, "hero_name":"Goldenberginho"})
-s=interactor(engine, x)
-
-print(s)
-
-
-
+def selector(engine, table, order=None, col=None):
+    g=engine.execute("SELECT * FROM information_schema.columns WHERE table_name   = '"+table+"'")
+    cols=[]
+    for x in g:
+        cols.append(x[3])
+    cols=cols[::-1]
+        
+    if (order==None and col==None):
+        f=engine.execute(f'select {", ".join(cols)} from '+table)
+    elif (order!=None):
+        f=engine.execute(f'select {", ".join(cols)} from '+table+' order by '+col+' '+order)
+        
+    res=[]
+    for x in f:
+        res.append(x)
+    return (res, cols)
 
 
+def selhtmler(table, lst):
+    sv=[]
+    sv.append("<div class=\"wrapped\"><table id="+table+"><thead>")
+    for x in lst[1]:
+        sv.append("<th>"+x+"</th>")
+    sv.append("</thead>")
 
+    sv.append("<tbody>")
+    for x in lst[0]:
+        sv.append("<tr>")
+        for y in x:
+            sv.append("<td>"+str(y)+"</td>")
+        sv.append("</tr>")
+    sv.append("</tbody>")
+    sv.append("</table>")
+    sv.append("</div>")
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#x=parser("army", "insert", {"x":12, "y":13}, {})
-#s=interactor(engine, x)
-
-#print(parser("castle", "insert", {"dead":12, "alive":"perhaps"}, {}))
-#print(parser("castle", "update", {"dead":12, "alive":"perhaps"}, {"slain":20, "Pure":"Streetcleaner"}))
-#print(parser("castle", "delete", {}, {"slain":20, "Pure":"Streetcleaner"}))
-
-"""
-meta = MetaData()
-students = Table(
-   'students', meta, 
-   Column('id', Integer, primary_key = True), 
-   Column('name', String), 
-   Column('lastname', String),
-)
-
-meta.create_all(engine)
-"""
-"""
-#engine.execute(students.insert(), name='Ozjasz', lastname='Goldberg')
-#engine.execute("insert into students(name, lastname) values({}, {})".format("'Jonasz'", "'Prorok'"))
-#engine.execute("delete from students where name={}".format("'Ozjasz'"))
-try:
-    engine.execute("insert into army(x, y) values (11, 12)")
-    engine.execute("insert into army(x, y) values (11, 12)")
-except sqla.exc.StatementError as e:
-    print(e.args[0])
-
-try:
-    engine.execute("insert into army(x, y) values (100012, 12)")
-    engine.execute("insert into army(x, y) values (11, 12)")
-except sqla.exc.StatementError as e:
-    print(e.args[0])
-"""
-
-
+    return ''.join(sv)

@@ -87,7 +87,7 @@ create table Hero(
     defence uint,
     might uint,
     wisdom uint,
-    constraint fk_playh foreign key(color) references player(color)
+    constraint fk_playh foreign key(color) references player(color) on update cascade
 );
 
 --Armia: modyfikowana przez usera
@@ -122,7 +122,7 @@ create table Castle_on_map(
 	constraint pk_castle_on_map primary key(x, y),
 	constraint fk_castle_map_point foreign key(x, y) references point_on_map(x, y),
 	constraint fk_castle_merge foreign key(castle) references Castles(castle_name),
-	constraint fk_to_player foreign key(color) references Player(color)
+	constraint fk_to_player foreign key(color) references Player(color) on update cascade
 );
 
 --Budynek w zamku na mapie: też modyfikowany przez usera
@@ -141,8 +141,8 @@ create or replace function map_creator(x1 uint, x2 uint)
 	returns void as
 $$
 declare
-	i integer:=0;
-	j integer:=0;
+	i integer:=1;
+	j integer:=1;
 begin
 	loop
 		exit when i>x1;
@@ -151,7 +151,7 @@ begin
 			insert into point_on_map values(i, j);
 			j:=j+1;
 		end loop;
-		j:=0;
+		j:=1;
 		i:=i+1;
 	end loop;
 end $$
@@ -261,6 +261,24 @@ create trigger refupdate_hero_army_trig
 	execute procedure update_reference_hero_army();
 
 
+--Usunięcie referencji z relacji army:
+create or replace function delete_reference_hero_army()
+	returns trigger as
+$$	
+begin
+	update army set hero_name=NULL where old.id_army=id_army;
+	return old;
+end;
+$$
+LANGUAGE plpgsql VOLATILE
+COST 100;
+
+create trigger refdelete_hero_army_trig
+	before delete
+	on hero
+	for each row
+	execute procedure delete_reference_hero_army();
+
 
 --Ograniczenie do 2 armii na punkt
 create or replace function two_armies()
@@ -287,13 +305,11 @@ create trigger dual_army_checker
 	for each row
 	execute procedure two_armies();
 
-
+/*
 DO $$ BEGIN
     perform map_creator(150, 150);
 END $$;
 
-
-/*
 --firepower test
 insert into castle_on_map values(50, 52, 'red', 'inferno');
 insert into castle_on_map values(50, 57, 'green', 'inferno');
