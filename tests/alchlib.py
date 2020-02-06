@@ -62,6 +62,19 @@ def interactor(engine, query, tp=None, arg=[]):
             'hero_pkey':"This hero name is already used!",
             'pk_point':"This point already exists!",
     }
+    _Dict_foreign={
+            'fk_playh':"Player doesn't exist!",
+            'fk_armyxy':"You tried to place army on non-existent point of map!",
+            'fk_tohero':"This hero doesn't exist!", 
+            'fk_toarmy':"This army doesn't exist!",
+            'fk_armycon':"This army doesn't exist!",
+            'fk_unit_from_army':"This unit doesn't exist",
+            'fk_castle_map_point':"You tried to place castle on non-existent point of map!" ,
+            'fk_castle_merge':"You tried to create castle of non-existent type!",
+            'fk_to_player':"Player does not exist!",
+            'fk_castle_build_map':"This type of building doesn't exist for that castle!",
+            'fk_xy_place':"You tried to attach building on non-existent point on map!",
+    }
 
 
     e=1
@@ -85,6 +98,7 @@ def interactor(engine, query, tp=None, arg=[]):
     except BaseException as ex:
         comm=ex.args[0][:re.search('\n', ex.args[0]).span()[0]]
         print(comm)
+
         if (re.search('too long for type character', comm)):
             comm="You cannot use names longer than 50 characters!"   
         if (re.search('unique', comm)):
@@ -94,32 +108,10 @@ def interactor(engine, query, tp=None, arg=[]):
                     break
         
         elif (re.search("violates foreign key", comm)):
-            if (re.search('fk_playh', comm)):
-                comm="Player doesn't exist!"
-            
-            if (re.search('fk_armyxy', comm)):
-                comm="You tried to place army on non-existent point of map!"
-            if (re.search('fk_tohero', comm)):
-                comm="This hero doesn't exist!" 
-            if (re.search('fk_toarmy', comm)):
-                comm="This army doesn't exist!"
-
-            if (re.search('fk_armycon', comm)):
-                comm="This army doesn't exist!"
-            if (re.search('fk_unit_from_army', comm)):
-                comm="This unit doesn't exist"
-
-            if (re.search('fk_castle_map_point', comm)):
-                comm="You tried to place castle on non-existent point of map!" 
-            if (re.search('fk_castle_merge', comm)):
-                comm="You tried to create castle of non-existent type!"
-            if (re.search('fk_to_player', comm)):
-                comm="Player does not exist!"
-
-            if (re.search('fk_castle_build_map', comm)):
-                comm="This type of building doesn't exist for that castle!"
-            if (re.search('fk_xy_place', comm)):
-                comm="You tried to attach building on non-existent point on map!"
+            for x in _Dict_foreign.keys():
+                if (re.search(x, comm)):
+                    comm=_Dict_foreign[x]
+                    break
         
         elif (re.search("violates not-null constraint", comm)):
             if (re.search("id_army", comm)):
@@ -132,7 +124,6 @@ def interactor(engine, query, tp=None, arg=[]):
                 comm="You need to provide a castle type!"
             if (re.search("unit_name", comm)):
                 comm="You need to provide unit name!"
-
 
     else:
         e=0

@@ -3,6 +3,7 @@ import numpy as np
 from flask import Flask, redirect, url_for, request
 from beatsoup import *
 from alchlib import *
+import sys
 
 app = Flask(__name__)
 
@@ -124,7 +125,6 @@ class bazikunit(unittest.TestCase):
 
     def test_castle(self):
         mlst=self.mlst[:2]
-        heroo=self.heroo[:2]
         
         #Tworzenie graczy
         interactor(engine, "", tp='proc', arg=['map_creator', [200, 100]])   
@@ -174,7 +174,84 @@ class bazikunit(unittest.TestCase):
                 self.assertTrue(w[0]==0)
 
     def test_armies(self):
-        assertTrue(False)
+        mlst=self.mlst
+        heroo=self.heroo
+        ee=engine.execute
+        armiez=[0]*6
+        unitz=[('Devil', 3), ('Archangel', 5), ('Power Lich', 3), ('Silver Pegasus', 12), ('Naga', 1), ('Minotaur King', 5)]
+
+        #Tworzenie graczy, bohatyrów i armii
+        interactor(engine, "", tp='proc', arg=['map_creator', [200, 100]])
+        for i, w in enumerate(mlst):
+            interactor(engine, f"insert into player values('{w}')" )
+            interactor(engine, f"insert into army(x,y) values(1,{i+1})")
+            for kx in engine.execute("select max(id_army) from army;"):
+                fx=kx[0]
+            mwynn=interactor(engine, f"insert into hero values('{heroo[i]}', '{w}', {fx})")
+            self.assertTrue(mwynn[0]==0)
+            armiez[i]=fx
+            mwynn=interactor(engine, f"insert into army_connect values({fx}, 2, '{unitz[i][0]}', {unitz[i][1]})")
+            
+            self.assertTrue(mwynn[0]==0)
+        #Army connect - update, delete
+        for f in ee("select hero_name from army where y=3"):
+            self.assertTrue(f[0]==heroo[2])
+        mwynn=interactor(engine, f"update army_connect set id_army={armiez[5]}, unit_name='Black Knight', position=3 where id_army={armiez[4]}")
+        self.assertTrue(mwynn[0]==0)
+
+        for f in ee("select id_army from army_connect group by id_army having count(*)>1;"):
+            self.assertTrue(f[0]==armiez[5])
+        
+        mwynn=interactor(engine, f"delete from army_connect where id_army={armiez[0]}")
+        self.assertEqual(mwynn[1], '')
+        for f in ee("select count(*) from army_connect;"):
+            self.assertTrue(f[0]==5)
+        
+        #Hero - zmiana nazwy, usuwanie, kolor
+        mwynn=interactor(engine, f"update hero set name='Vulpes' where id_army={armiez[1]}")
+        self.assertEqual(mwynn[1], '')
+
+        for f in ee(f"select hero_name from army where id_army={armiez[1]};"):
+            self.assertEqual(f[0], 'Vulpes')
+
+        mwynn=interactor(engine, f"delete from hero where id_army={armiez[1]}")
+        self.assertEqual(mwynn[1], '')
+
+        for f in ee(f"select name from hero where id_army={armiez[1]};"):
+            self.assertTrue(False)
+        for f in ee(f"select hero_name from army where id_army={armiez[1]};"):
+            self.assertTrue(f[0] is None)
+
+        #Hero - zmiana id armii
+        mwynn=interactor(engine, f"update hero set id_army={armiez[1]} where id_army={armiez[2]}")
+        self.assertEqual(mwynn[1], '')
+        
+        for f in ee(f"select hero_name from army where id_army={armiez[2]};"):
+            self.assertTrue(f[0] is None)
+
+        for f in ee(f"select hero_name from army where id_army={armiez[1]};"):
+            self.assertEqual(f[0],  heroo[2])
+        
+        #Usuwanie armii 2. z 3. herosem
+        mwynn=interactor(engine, "", tp='procp', arg=['army_slayer', [armiez[1]]])
+        self.assertEqual(mwynn[1], '')
+        
+        for f in ee(f"select hero_name from army where hero_name='{heroo[2]}';"):
+            self.assertEqual('Hero is not dead', 'Hero should be dead')
+         
+        mwynn=interactor(engine, "", tp='procp', arg=['army_slayer', [armiez[1]]])
+        self.assertEqual(mwynn[1], '')
+
+        mwynn=interactor(engine, f"insert into army(x, y) values(1,1)")
+        self.assertEqual(mwynn[1], '')
+        mwynn=interactor(engine, f"insert into army(x, y) values(1,1)")
+        self.assertEqual(mwynn[1], 'There are already two armies on this point!')
+        
+        for kx in ee("select max(id_army) from army;"):
+            fx=kx[0]
+         
+        mwynn=interactor(engine, f"insert into hero(name, color, id_army) values('Arthur','green',{fx})")
+        self.assertEqual(mwynn[1], '')
 
 
 

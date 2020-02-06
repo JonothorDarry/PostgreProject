@@ -275,7 +275,7 @@ create or replace function update_reference_hero_army()
 $$	
 begin
 	update army set hero_name=new.name where new.id_army=id_army;
-	return new;
+return new;
 end;
 $$
 LANGUAGE plpgsql VOLATILE
@@ -291,21 +291,39 @@ create trigger refupdate_hero_army_trig
 --Usunięcie referencji z relacji army:
 create or replace function delete_reference_hero_army()
 	returns trigger as
-$$	
+$$
 begin
 	update army set hero_name=NULL where old.id_army=id_army;
-	return old;
+	if new is null then
+		return old;
+	end if;
+	return new;
 end;
 $$
 LANGUAGE plpgsql VOLATILE
 COST 100;
 
 create trigger refdelete_hero_army_trig
-	before delete
+	before delete or update
 	on hero
 	for each row
 	execute procedure delete_reference_hero_army();
 
+
+	
+--Ścięcie armii, usunięcie wszystkich jej jednostek i bohaterów
+create or replace procedure army_slayer(x1 int)
+	language plpgsql as
+$$
+begin
+	delete from army_connect where id_army=x1;	
+	alter table hero disable trigger all;
+	alter table army disable trigger all;
+	delete from army where id_army=x1;
+	delete from hero where id_army=x1;
+	alter table hero enable trigger all;
+	alter table army enable trigger all;
+end $$;
 
 --Ograniczenie do 2 armii na punkt
 create or replace function two_armies()
