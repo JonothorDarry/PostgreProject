@@ -77,3 +77,7 @@ td{
   height:300px;
   overflow:scroll;
 }
+
+tbody tr:hover{
+  background-color: #DDDDDD;
+}
