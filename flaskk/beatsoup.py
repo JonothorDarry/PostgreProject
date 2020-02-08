@@ -1,16 +1,25 @@
 from bs4 import BeautifulSoup
 from alchlib import *
 
-def changer(html_file):
+def changer(html_file, tablez=None):
     soup = BeautifulSoup(html_file, 'html.parser')
     fil=open('../apps/overall.css')
     z=fil.read()
     z="<head>\n<style>\n"+z+"\n</style>\n</head>"
-
+    zv="<script>"
+    if (tablez!=None):
+        zv=zv+f"let docs = {str(tablez)};\n" 
+        fil=open('../apps/cud.js')
+        zv=zv+fil.read()
+    zv=zv+"</script>"
     zk=BeautifulSoup(z, 'html.parser')
+    zv=BeautifulSoup(zv, 'html.parser')
+    
     soup.head.replace_with(zk)
+    soup.body.append(zv)
     d=soup.prettify()
     return d
+
 
 def supchanger(html, idd, new):
     html=BeautifulSoup(html, 'html.parser')
@@ -60,8 +69,7 @@ dbparse={
     
 }
 
-
-def dispatcher(engine, name):
+def dispatcher(engine, name, myval=None):
     dick={
         'castle_on_map-color':'select color from player;',
         'castle_on_map-castle':'select castle_name from castles;',
@@ -72,29 +80,39 @@ def dispatcher(engine, name):
         'army_connect-id_army':'select id_army from army;',
         'army_connect-unit_name':'select unit_name from unit;',    
     }
-
-
+    
     allezklar=f"<select name={name}>"
     for s in engine.execute(dick[name]):
         s=[str(x) for x in s]
-        print("-".join(list(s)))
-
-        allezklar=allezklar+f'<option value="{"-".join(list(s))}">{"-".join(list(s))}</option>'
+        if (myval==None or "-".join(list(s))!=myval):
+            allezklar=allezklar+f'<option value="{"-".join(list(s))}">{"-".join(list(s))}</option>'
+        else:
+            allezklar=allezklar+f'<option value="{"-".join(list(s))}" selected=\"selected\">{"-".join(list(s))}</option>'
+            
     allezklar=allezklar+"</select>"
-
+    
     return allezklar
+    
 
-def htcreat(htcode, name, engine):
+def htcreat(htcode, name, engine, fas=0, ite=None):
     soup = BeautifulSoup(htcode, 'html.parser')
     
     s=dbparse[name]
     mine=""
     for x in s.keys():
+        vall=ite[x[len(name)+1:]] if (ite!=None) else 0
+        
         mine=mine+f"<label>{s[x][0]}"
         if (s[x][1]=="select"):
-            mine=mine+dispatcher(engine, x)
+            if (fas==0):
+                mine=mine+dispatcher(engine, x)
+            else:
+                mine=mine+dispatcher(engine, x, vall)
         else:
-            mine=mine+f"<input type=\"{s[x][1]}\" name=\"{x}\">"
+            if (fas==0):
+                mine=mine+f"<input type=\"{s[x][1]}\" name=\"{x}\">"
+            else:
+                mine=mine+f"<input type=\"{s[x][1]}\" name=\"{x}\" value=\"{vall}\">"
         mine=mine+f"{s[x][2]}</label><br>"
     mine=BeautifulSoup(mine, 'html.parser')
     soup.select("#changer")[0].append(mine)

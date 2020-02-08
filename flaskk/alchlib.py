@@ -9,7 +9,7 @@ def schanger(x, s1, s2):
     return x
 
 #Parsowanie inserta/update'a/deleta
-def parser(table, opera, ins=None, wher=None): 
+def parser(table, opera, ins=None, wher=None):  
     exc=""
     if (opera=='insert'):
         ins1str=str([x for x in ins.keys()])[1:-1]
@@ -52,14 +52,17 @@ def parser(table, opera, ins=None, wher=None):
     return exc+";"
 
 #Zamiana dicta z niepoprawnymi nazwami na sensownego dicta
-def dictvisioner(dct):
+def dictvisioner(dct, alter=1):
     dct=dict(dct)
     ancient_dict={}
     dct.pop('which', None)
-    for x in dct.keys():
-        sv=x[re.search('-', x).span()[1]:]
-        for v, y in zip(re.split('-', sv), re.split('-', dct[x])):
-            ancient_dict[v]=y
+    if (alter==1):
+        for x in dct.keys():
+            sv=x[re.search('-', x).span()[1]:]
+            for v, y in zip(re.split('-', sv), re.split('-', dct[x])):
+                ancient_dict[v]=y
+    else:
+        return dct
     return ancient_dict
 
 #Wbijacz zapytań
