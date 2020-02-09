@@ -167,10 +167,21 @@ def selector(engine, table, order=None, col=None):
 #twórca tablicy z zapytania selecta(lst) i nazwy tabeli(table)
 def selhtmler(table, lst):
     sv=[]
-    sv.append("<div class=\"wrapped\"><table id="+table+"><thead>")
+    #Button do th
+    bth="""
+    <div class="buth">
+        <button class="sbtnd">
+            v
+        </button>
+        <button class="sbtnu">
+            v
+        </button>
+    </div>"""
+
+    sv.append("<div class=\"wrapped\"><table id="+table+"><thead><tr>")
     for x in lst[1]:
-        sv.append("<th>"+x+"</th>")
-    sv.append("</thead>")
+        sv.append("<th>"+x+bth+"</th>")
+    sv.append("</tr></thead>")
 
     sv.append("<tbody>")
     for x in lst[0]:

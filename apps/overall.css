@@ -1,3 +1,4 @@
+
 .button1 {
   border-radius: 0px;
   color: #ffffff;
@@ -77,6 +78,34 @@ td{
   height:300px;
   overflow:scroll;
 }
+
+.sbtnu {
+  border-radius: 0px;
+  color: #ffffff;
+  background-color: #aa0000;
+  border: 1px solid #ffffff;
+  height: 47%;
+  display: block;
+  /*transform: rotate(-20deg);*/
+}
+
+.sbtnd {
+  border-radius: 0px;
+  color: #ffffff;
+  background-color: #aa0000;
+  border: 1px solid #ffffff;
+  height: 47%;
+  display: block;
+  transform: rotate(-180deg);
+}
+
+.buth{
+  position: relative;
+  float: right;
+  height: 45px;
+  display: inline;
+}
+
 
 tbody tr:hover{
   background-color: #DDDDDD;

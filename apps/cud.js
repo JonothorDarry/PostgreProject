@@ -29,7 +29,7 @@ armist = function(target) {
   
   for (ij=0;ij<arr.length;ij+=1){
   	for (j=0;j<xv.length;j+=1){
-      if (xv[j].innerText==arr[ij]){
+      if (xv[j].childNodes[0].nodeValue.trim()==arr[ij]){
         pnt[ij]=j;
         break;
       }
@@ -48,7 +48,7 @@ armist = function(target) {
 	var day=mn.getElementsByTagName("th"), apnt=[0,0];
   for (ij=0;ij<arr.length;ij+=1){
   	for (j=0;j<day.length;j+=1){
-      if (day[j].innerText==arr[ij]){
+      if (day[j].childNodes[0].nodeValue.trim()==arr[ij]){
         apnt[ij]=j;
         break;
       }
@@ -107,20 +107,86 @@ evefun = function(e) {
   for (i=0;i<lh;i+=1){
     var kv=document.createElement("input");
     kv.setAttribute("type", "text");
-    kv.setAttribute("name", hed[i].innerText);
+    kv.setAttribute("name", hed[i].childNodes[0].nodeValue.trim());
     kv.setAttribute("value", elemz[i].innerText);
     document.getElementById("nonex").appendChild(kv);
   }
 }
 
-
+sorto=function(e){
+	e = e || window.event;
+  var target = e.target || e.srcElement,
+    text = target.textContent || target.innerText;
+  
+  var lower=1;
+  if (target.getAttribute("class")=="sbtnu"){lower=-1;}
+  
+  var arg=target.parentElement.parentElement.childNodes[0].nodeValue, 
+  trs=target.parentElement.parentElement.parentElement.parentElement.parentElement.getElementsByTagName("tr"),
+  ths=target.parentElement.parentElement.parentElement.parentElement.parentElement.getElementsByTagName("th"),
+  i=0, jj=0, ij=0, ptr=0, tmp=0, tmp2;
+  arg=arg.trim();
+  
+  for (i = 0; i < ths.length; i++) {
+    tmp=ths[i].childNodes[0].nodeValue;
+    tmp=tmp.trim();
+    if (tmp==arg){
+    	ptr=i;
+      break;
+    }
+  }
+  var x = new Array(trs.length), numa=1;
+  for (i = 0; i < x.length; i++) {x[i] = new Array(ths.length);}
+  
+  for (i = 1; i < trs.length; i++) {
+  	tmp=trs[i].getElementsByTagName("td");
+    for (jj=0;jj<tmp.length;jj++){      
+    	x[i-1][jj]=tmp[jj].innerText;
+    }
+    
+    tmp2=tmp[ptr].innerText;
+    for (ij=0;ij<tmp2.length;ij++){
+      if (tmp2.charCodeAt(ij)<48 || tmp2.charCodeAt(ij)>57){
+      	numa=0;
+        break;
+      }
+    }
+  }
+  
+  if (numa==0){
+  	myfunct=function(a, b){
+    	  return (a[ptr]<b[ptr]?(-lower):(a[ptr]>b[ptr]?lower:0)); 
+    }
+  }
+  else{
+    myfunct=function(a, b){
+      return lower*(parseInt(a[ptr])-parseInt(b[ptr]));
+    }
+  }
+  
+  x.sort(myfunct);
+ 
+  for (i=1;i<trs.length;i++){
+  	tmp=trs[i].getElementsByTagName("td");
+    for (jj=0;jj<tmp.length;jj++){
+    	tmp[jj].innerText=x[i-1][jj];
+    }
+  }
+}
 
 var j=0;
 //Linia kluczowa - lista tablic do orania
 //let docs = ["hero", "army", "army_connect"];
 for (j=0;j<docs.length;j+=1){
-
   for (i = 0; i < document.getElementById(docs[j]).getElementsByTagName("tr").length; i += 1) {
     document.getElementById(docs[j]).getElementsByTagName("tr")[i].addEventListener('click', evefun, false);
   }
 }
+
+var morbidu=document.getElementsByClassName("sbtnu");
+var morbidd=document.getElementsByClassName("sbtnd");
+for (i = 0; i < morbidu.length; i += 1) {
+  morbidu[i].addEventListener('click', sorto, false);
+  morbidd[i].addEventListener('click', sorto, false);
+}
+
