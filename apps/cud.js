@@ -29,7 +29,7 @@ armist = function(target) {
   
   for (ij=0;ij<arr.length;ij+=1){
   	for (j=0;j<xv.length;j+=1){
-      if (xv[j].childNodes[0].nodeValue.trim()==arr[ij]){
+      if (xv[j].getAttribute("data-wisdom")==arr[ij]){
         pnt[ij]=j;
         break;
       }
@@ -48,7 +48,7 @@ armist = function(target) {
 	var day=mn.getElementsByTagName("th"), apnt=[0,0];
   for (ij=0;ij<arr.length;ij+=1){
   	for (j=0;j<day.length;j+=1){
-      if (day[j].childNodes[0].nodeValue.trim()==arr[ij]){
+      if (day[j].getAttribute("data-wisdom")==arr[ij]){
         apnt[ij]=j;
         break;
       }
@@ -107,7 +107,7 @@ evefun = function(e) {
   for (i=0;i<lh;i+=1){
     var kv=document.createElement("input");
     kv.setAttribute("type", "hidden");
-    kv.setAttribute("name", hed[i].childNodes[0].nodeValue.trim());
+    kv.setAttribute("name", hed[i].getAttribute("data-wisdom"));
     kv.setAttribute("value", elemz[i].innerText);
     document.getElementById("nonex").appendChild(kv);
   }
@@ -121,15 +121,13 @@ sorto=function(e){
   var lower=1;
   if (target.getAttribute("class")=="sbtnu"){lower=-1;}
   
-  var arg=target.parentElement.parentElement.childNodes[0].nodeValue, 
+  var arg=target.parentElement.parentElement.getAttribute("data-wisdom"), 
   trs=target.parentElement.parentElement.parentElement.parentElement.parentElement.getElementsByTagName("tr"),
   ths=target.parentElement.parentElement.parentElement.parentElement.parentElement.getElementsByTagName("th"),
   i=0, jj=0, ij=0, ptr=0, tmp=0, tmp2;
-  arg=arg.trim();
   
   for (i = 0; i < ths.length; i++) {
-    tmp=ths[i].childNodes[0].nodeValue;
-    tmp=tmp.trim();
+    tmp=ths[i].getAttribute("data-wisdom");
     if (tmp==arg){
     	ptr=i;
       break;
@@ -174,6 +172,23 @@ sorto=function(e){
   }
 }
 
+starter=function(){
+	var i=0, j=0, x=document.getElementsByTagName("th"), y, z, res="";
+  for (i=0;i<x.length;i++){
+  	y=x[i].childNodes[0].nodeValue.trim().split("_");
+    for (j=0;j<y.length;j++){
+    	z=y[j][0].toUpperCase()+y[j].substr(1, y[j].length-1);
+      res=res+z;
+      if (j<y.length-1) res=res+' ';
+    }
+    x[i].setAttribute("data-wisdom", x[i].childNodes[0].nodeValue.trim());
+    x[i].childNodes[0].nodeValue=res;
+    res="";
+  }
+}
+
+//Ceremonia Otwarcia kodu strony
+starter()
 var j=0;
 //Linia kluczowa - lista tablic do orania
 //let docs = ["hero", "army", "army_connect"];
@@ -189,4 +204,3 @@ for (i = 0; i < morbidu.length; i += 1) {
   morbidu[i].addEventListener('click', sorto, false);
   morbidd[i].addEventListener('click', sorto, false);
 }
-
