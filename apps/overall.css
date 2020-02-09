@@ -110,3 +110,10 @@ td{
 tbody tr:hover{
   background-color: #DDDDDD;
 }
+#error{
+  position: absolute;
+  bottom: 0;
+  color: #FF0000;
+  text-align: center;
+  width: 100%;
+}

@@ -4,8 +4,11 @@ from alchlib import *
 
 app = Flask(__name__)
 
+#fas: 1 - update, wtedy w ite jest dict ze zmianami
 fas=0
 ite=0
+#Black flag - tu są składowane błędy
+black_flag=[0, '']
 
 #Dokąd prowadzi ten podróżnik? Buttony do mety, armii i innych
 def wanderer(pname):
@@ -17,10 +20,12 @@ def wanderer(pname):
         return 'players'
     return 'armys'
 
-def iu_handler(request, htm, name, engine, ret):
+#Zajmuje się insert/updatem
+def iu_handler(request, htm, name, engine, ret, erro):
     global fas
     global ite
-
+    global black_flag
+    #Pokazanie interfejsu, uzależnienie od tego, czy insert, czy update(fas), czarna flaga - zaszedł błąd
     if (request.method=='GET'):
         fil=open(htm)
         cf=fil.read()
@@ -28,16 +33,25 @@ def iu_handler(request, htm, name, engine, ret):
             cf=htcreat(cf, name, engine, fas, ite)
         else:
             cf=htcreat(cf, name, engine)
+        
+        if (black_flag[0]==1):
+            cf=hterro(cf, black_flag[1])
 
+        black_flag=[0, '']
         return changer(cf)
+    #Jeśli było postowanie - albo back, zwykły powrót, albo zmiana bazy
     if (request.method=='POST'):
         z=request.form['which']
         if (z=='pure'):
+            #vynn - wynik egzekucji, ewentualnie komunikat błędu
             if (fas==0):
-                insert_preparer(engine, request.form, name, 'insert')
+                vynn=insert_preparer(engine, request.form, name, 'insert')
             else:
-                update_preparer(engine, ite, request.form, name, 'update')
-
+                vynn=update_preparer(engine, ite, request.form, name, 'update')
+            #Jeśli błąd, zostaje na stronie z komunikatem o błędzie 
+            black_flag=vynn
+            if (vynn[0]==1):
+                return redirect(url_for(erro))
 
         return redirect(url_for(ret))
 
@@ -56,7 +70,7 @@ def select_preparer(engine, arr, cf):
 def insert_preparer(engine, data, table, opera):
     vd=dictvisioner(data)
     ls=parser(table, opera, ins=vd)
-    interactor(engine, ls) 
+    return interactor(engine, ls) 
 
 
 #Update tabeli: data to dane, old - stare dane, opera - operacja, table - tablica do zmiany, data - dane do parsowania
@@ -64,7 +78,7 @@ def insert_preparer(engine, data, table, opera):
 def update_preparer(engine, old, data, table, opera):
     vd=dictvisioner(data)
     ls=parser(table, opera, ins=vd, wher=old)
-    interactor(engine, ls)
+    return interactor(engine, ls)
 
 
 #Małe sprawdzenie, czy update, czy insert, stosowne zmiany makrokodu - globalsy
@@ -95,7 +109,7 @@ def metas():
         fil=open('../apps/4meta.html')  #Otwarcie html-a
         cf=fil.read()
         cf=select_preparer(engine, ["unit", "resources", "castles", "castle_building"], cf) #SQL->HTML
-        return changer(cf) #Zwracanie HTML-a
+        return changer(cf, ['castles', 'castle_building', 'resources', 'unit']) #Zwracanie HTML-a
     #Zmiana lokacji
     if (request.method=='POST'):
         z=request.form['which']
@@ -109,11 +123,11 @@ def metas():
 
 @app.route('/castleins', methods = ['POST', 'GET'])
 def castlei():
-    return iu_handler(request, '../apps/8formcastle.html', "castle_on_map", engine, 'castles')
+    return iu_handler(request, '../apps/8formcastle.html', "castle_on_map", engine, 'castles', 'castlei')
 
 @app.route('/buildins', methods = ['POST', 'GET'])
 def buildi():
-    return iu_handler(request, '../apps/9formbuild.html', "building_in_castle_on_map", engine, 'castles')
+    return iu_handler(request, '../apps/9formbuild.html', "building_in_castle_on_map", engine, 'castles', 'buildi')
 
 @app.route('/castlesel', methods = ['POST', 'GET'])
 def castles():
@@ -157,15 +171,15 @@ def castles():
 
 @app.route('/armyins', methods = ['POST', 'GET'])
 def armyi():
-    return iu_handler(request, '../apps/7formarmy.html', "army", engine, 'armys') 
+    return iu_handler(request, '../apps/7formarmy.html', "army", engine, 'armys', 'armyi')
         
 @app.route('/heroins', methods = ['POST', 'GET'])
 def heroi():
-    return iu_handler(request, '../apps/6formhero.html', "hero", engine, 'armys') 
+    return iu_handler(request, '../apps/6formhero.html', "hero", engine, 'armys', 'heroi') 
 
 @app.route('/aconins', methods = ['POST', 'GET'])
 def aconi():
-    return iu_handler(request, '../apps/11formarmycon.html', "army_connect", engine, 'armys') 
+    return iu_handler(request, '../apps/11formarmycon.html', "army_connect", engine, 'armys', 'aconi') 
 
 
 
@@ -218,7 +232,7 @@ def armys():
 
 @app.route('/playerins', methods = ['POST', 'GET'])
 def playeri():
-    return iu_handler(request, '../apps/10formplayer.html', "player", engine, 'players') 
+    return iu_handler(request, '../apps/10formplayer.html', "player", engine, 'players', 'playeri') 
 
 @app.route('/playersel', methods = ['POST', 'GET'])
 def players():

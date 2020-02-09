@@ -20,14 +20,14 @@ def changer(html_file, tablez=None):
     d=soup.prettify()
     return d
 
-
+#Zamienia tablicę o podanym id nową tablicą - wstawianie z bazy
 def supchanger(html, idd, new):
     html=BeautifulSoup(html, 'html.parser')
     new=BeautifulSoup(new, 'html.parser')
     html.findAll('table', id=idd)[0].replaceWith(new)
     return html.prettify()
 
-#Elfstone
+#Dane inputu: nazwa inputu w formularzu to key, value to kolejno: 
 dbparse={
     "player":{
         "player-color":["Player Color", "text", "Color of the player"]
@@ -92,7 +92,14 @@ def dispatcher(engine, name, myval=None):
     allezklar=allezklar+"</select>"
     
     return allezklar
-    
+
+def hterro(htcode, communicate):
+    soup = BeautifulSoup(htcode, 'html.parser')
+    dignity=f'<div id="error">{communicate}</div>'
+    dignity=BeautifulSoup(dignity, 'html.parser')
+    soup.body.append(dignity)
+    return soup.prettify()
+
 
 def htcreat(htcode, name, engine, fas=0, ite=None):
     soup = BeautifulSoup(htcode, 'html.parser')
@@ -100,7 +107,10 @@ def htcreat(htcode, name, engine, fas=0, ite=None):
     s=dbparse[name]
     mine=""
     for x in s.keys():
-        vall=ite[x[len(name)+1:]] if (ite!=None) else 0
+        if (ite!=None):
+            vall=ite[x[len(name)+1:]] 
+        else:
+            vall=0
         
         mine=mine+f"<label>{s[x][0]}"
         if (s[x][1]=="select"):
