@@ -4,53 +4,51 @@
   </head>
 
   <body>
-
-    <div class=centered2 style="z-index:1">
-
-      <div>
-        <h2 style="text-align:center">Player Table</h2>
-        <button class=button2 style="display:inline-block" form="nonex" type="submit" formmethod="post" name="which" value="ins">Insert</button>
-        <button class=button2 style="display:inline-block" form="nonex" type="submit" formmethod="post" name="which" value="upd">Update</button>
-        <button class=button2 style="display:inline-block" form="nonex" type="submit" formmethod="post" name="which" value="del">Delete</button>
-
 	<form id="nonex"></form>
+    <div id="everything">
+      <div id="tables">
+        <div id="t1">
+          <div class="ltablet">
+            <h2 style="text-align:center">Player Table</h2>
+            <button class=button2 style="display:block" form="nonex" type="submit" formmethod="post" name="which" value="ins">Insert</button>
+            <button class=button2 style="display:block" form="nonex" type="submit" formmethod="post" name="which" value="upd">Update</button>
+            <button class=button2 style="display:block" form="nonex" type="submit" formmethod="post" name="which" value="del">Delete</button>
 
-      </div>
-
-
-      <div style="margin-top:30px">
-        <table id="player">
+          </div>
+          <div class="rtablet">
+          <table id="player">
           <thead>
           </thead>
           <tbody>
             <tr>
-              <td>
-                <b>Player</b>
-              </td>
+              <td><b>Player</b></td>
             </tr>
             <tr>
-              <td>
-                Red
-              </td>
+              <td>Red</td>
             </tr>
             <tr>
-              <td>
-                Black
-              </td>
+              <td>Black</td>
             </tr>
           </tbody>
 
         </table>
+
+          </div>
+        </div>        
       </div>
+      
+      <div id="image">
+        <img src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.musicmeter.nl%2Fimages%2Fcover%2F22000%2F22387.jpg&f=1&nofb=1" style="position:absolute; right:0px; top:0px; max-width:100%; max-height:100%; margin-right:0;">
+      </div>
+      
+      <div id="buttonz">
+        <button class=button1 form="nonex" type="submit" formmethod="post" name="which" value="cast">Castles Table</button>
+        <button class=button1 form="nonex" type="submit" formmethod="post" name="which" value="arm">Armies Table</button>
+        <button class=button1 form="nonex" type="submit" formmethod="post" name="which" value="met">Metaknowledge</button>
+      </div>
+      
     </div>
-    <div style="position:absolute; right:0px; bottom:0px;">
-      <button class=button1 form="nonex" type="submit" formmethod="post" name="which" value="cast">Castles Table</button>
-      <button class=button1 form="nonex" type="submit" formmethod="post" name="which" value="arm">Armies Table</button>
-      <button class=button1 form="nonex" type="submit" formmethod="post" name="which" value="met">Metaknowledge</button>
-    </div>
+
     
-    <div style="position:absolute; right:0px; top:0px; width:85%; height:85%; margin-right:0;">
-      <img src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.musicmeter.nl%2Fimages%2Fcover%2F22000%2F22387.jpg&f=1&nofb=1" style="position:absolute; right:0px; top:0px; max-width:100%; max-height:100%; margin-right:0;">
-    </div>
   </body>
 </html>

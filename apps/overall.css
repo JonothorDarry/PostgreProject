@@ -1,4 +1,8 @@
 
+.headtable{
+  text-align:left;
+}
+
 .button1 {
   border-radius: 0px;
   color: #ffffff;
@@ -62,6 +66,12 @@
 }
 
 table{
+  position: absolute;
+  top: 35%;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
   border: 3px solid black;
   border-collapse: collapse;
 }
@@ -73,11 +83,14 @@ td{
 }
 
 .wrapped{
-  position:relative;
-  width:500px;
-  height:300px;
+  position:absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
   overflow:scroll;
 }
+
 
 .sbtnu {
   border-radius: 0px;
@@ -110,10 +123,162 @@ td{
 tbody tr:hover{
   background-color: #DDDDDD;
 }
+
 #error{
   position: absolute;
   bottom: 0;
   color: #FF0000;
   text-align: center;
   width: 100%;
+}
+
+select{
+  width: 160px;
+}
+
+.flabel{
+  position: relative;
+  left: 30%;
+}
+
+
+#everything{
+  position: absolute;
+  top: 1.5%;
+  bottom: 1.5%;
+  left: 1%;
+  right: 1%;
+}
+
+#image{
+  position: absolute;
+  left: 60%;
+  top: 0%;
+  bottom: 20%;
+  right: 0%;
+}
+
+#buttonz{
+  position: absolute;
+  left: 90%;
+  top: 80%;
+  bottom: 0%;
+  right: 0%;
+}
+
+#tables{
+  position: absolute;
+  left: 0%;
+  top: 0%;
+  bottom: 0%;
+  right: 40%;
+}
+
+#t1{
+  position: absolute;
+  left: 0%;
+  top: 0%;
+  bottom: 65%;
+  right: 0%;
+}
+
+#t2{
+  position: absolute;
+  left: 0%;
+  top: 35%;
+  bottom: 30%;
+  right: 0%;
+}
+
+#t3{
+  position: absolute;
+  left: 0%;
+  top: 70%;
+  bottom: 0%;
+  right: 0%;
+}
+
+#t4{
+  position: absolute;
+  left: 0%;
+  top: 0%;
+  bottom: 50%;
+  right: 0%;
+}
+
+#t5{
+  position: absolute;
+  left: 0%;
+  top: 50%;
+  bottom: 0%;
+  right: 0%;
+}
+
+/*Lewa i prawa strona tabeli, stablet - ideał pustek*/
+.ltablet{
+  position: absolute;
+  left: 0%;
+  top: 0%;
+  bottom: 0%;
+  right: 80%;
+}
+
+.rtablet{
+  position: absolute;
+  left: 20%;
+  top: 0%;
+  bottom: 0%;
+  right: 0%;
+}
+
+.stablet{
+  position: absolute;
+  left: 3%;
+  top: 4%;
+  bottom: 4%;
+  right: 3%;
+}
+
+
+
+
+
+
+
+
+/*Meta - 4 tabele, kolejno: unit, castle, res, build*/
+#meth1{
+  position: absolute;
+  left: 0%;
+  top: 0%;
+  bottom: 50%;
+  right: 20%;
+}
+
+#meth2{
+  position: absolute;
+  left: 80%;
+  top: 0%;
+  bottom: 50%;
+  right: 0%;
+}
+
+#meth3{
+  position: absolute;
+  left: 0%;
+  top: 50%;
+  bottom: 0%;
+  right: 50%;
+}
+
+#meth4{
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  bottom: 0%;
+  right: 15%;
+}
+
+#unit, #castles, #resources, #castle_building{
+  top: 0;
 }

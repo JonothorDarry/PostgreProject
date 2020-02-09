@@ -106,7 +106,7 @@ evefun = function(e) {
   var lh=hed.length, i=0;
   for (i=0;i<lh;i+=1){
     var kv=document.createElement("input");
-    kv.setAttribute("type", "text");
+    kv.setAttribute("type", "hidden");
     kv.setAttribute("name", hed[i].childNodes[0].nodeValue.trim());
     kv.setAttribute("value", elemz[i].innerText);
     document.getElementById("nonex").appendChild(kv);
