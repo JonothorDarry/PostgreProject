@@ -93,6 +93,7 @@ def dispatcher(engine, name, myval=None):
     
     return allezklar
 
+#Wypis errora na spodzie strony
 def hterro(htcode, communicate):
     soup = BeautifulSoup(htcode, 'html.parser')
     dignity=f'<div id="error">{communicate}</div>'
@@ -100,19 +101,20 @@ def hterro(htcode, communicate):
     soup.body.append(dignity)
     return soup.prettify()
 
-
+#Tworzenie HTML-a od inserta/updata
 def htcreat(htcode, name, engine, fas=0, ite=None):
     soup = BeautifulSoup(htcode, 'html.parser')
     
     s=dbparse[name]
     mine=""
     for x in s.keys():
+        #jeśli ite istnieje, sprawdzić wartość jego dla argumentu <oberżnięta nazwa z s-a(bez nazwy relacji)
         if (ite!=None):
             vall=ite[x[len(name)+1:]] 
         else:
             vall=0
         
-        mine=mine+f"<label>{s[x][0]}"
+        mine=mine+f"<div class=\"formverse\"> <div class=\"lform\"> <label for=\"{s[x][0]}\">{s[x][0]}</label></div> <div class=\"mform\">"
         if (s[x][1]=="select"):
             if (fas==0):
                 mine=mine+dispatcher(engine, x)
@@ -120,10 +122,10 @@ def htcreat(htcode, name, engine, fas=0, ite=None):
                 mine=mine+dispatcher(engine, x, vall)
         else:
             if (fas==0):
-                mine=mine+f"<input type=\"{s[x][1]}\" name=\"{x}\">"
+                mine=mine+f"<input id=\"{s[x][0]}\" type=\"{s[x][1]}\" name=\"{x}\">"
             else:
-                mine=mine+f"<input type=\"{s[x][1]}\" name=\"{x}\" value=\"{vall}\">"
-        mine=mine+f"{s[x][2]}</label><br>"
+                mine=mine+f"<input id=\"{s[x][0]}\" type=\"{s[x][1]}\" name=\"{x}\" value=\"{vall}\">"
+        mine=mine+f"</div> <div class=\"rform\"><label for=\"{s[x][0]}\">{s[x][2]}</label> </div></div>"
     mine=BeautifulSoup(mine, 'html.parser')
     soup.select("#changer")[0].append(mine)
     return soup.prettify()
