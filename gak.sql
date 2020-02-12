@@ -192,6 +192,29 @@ begin
 	
 	delete from player
 	where color=x1;
+end $$;
+
+
+--Procedura rozwiązania bazy danych
+create or replace procedure dissolution()
+	language plpgsql as
+$$
+begin
+	drop function firepower(text);
+	drop function map_creator(uint, uint);
+	
+	drop table Building_in_castle_on_map;
+	drop table Castle_on_map;
+	drop table Army_connect cascade;
+	drop table Army cascade;
+	drop table Hero;
+	drop table Player;
+	drop table Point_on_map;
+	drop table Unit;
+	drop table Castle_Building;
+	drop table Castles;
+	drop table Resources;
+	drop domain uint;
 
 end $$;
 

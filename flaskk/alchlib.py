@@ -3,7 +3,11 @@ from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, 
 import psycopg2
 import re
 import matplotlib.pyplot as plt
+import matplotlib.patches as patch
+from matplotlib.patches import Patch
+import matplotlib.lines as mlines
 import numpy as np
+
 
 def schanger(x, s1, s2):
     if (x in s1):
@@ -120,8 +124,11 @@ def interactor(engine, query, tp=None, arg=[]):
             cursor.callproc(*arg)
         
         elif (tp=='procp'):
-            pv=str(*arg[1])
-            cursor.execute(f"do $$ begin call {arg[0]}('{pv}'); end $$;")
+            if (len(arg[1])>0):
+                pv=str(*arg[1])
+                cursor.execute(f"do $$ begin call {arg[0]}('{pv}'); end $$;")
+            else:
+                cursor.execute(f"do $$ begin call {arg[0]}(); end $$;")
 
 
         cursor.close()
@@ -213,13 +220,13 @@ def selhtmler(table, lst):
 
     return ''.join(sv)
 
-
 #Wyrysowanie 2 grup dla 1 koloru - armii i zamków
 def doubleprinter(ax, l1, l2, coll):
-        if (len(l1)>0):
-            ax.scatter(l1[0], l1[1], color=coll, s=70, marker='P')
-        if (len(l2)>0):
-            ax.scatter(l2[0], l2[1], color=coll)
+    if (len(l1)>0):
+        ax.scatter(l1[0], l1[1], color=coll, s=100, marker='P')
+    if (len(l2)>0):
+        ax.scatter(l2[0], l2[1], color=coll, s=100)
+
 
 #Colorland to zbiór kolorów dla konkretnych graczy
 colorland={}
@@ -229,17 +236,19 @@ def map_maker(engine, ax):
     csel=engine.execute('select x, y, color from castle_on_map')
     csel2=engine.execute('select a.x, a.y, h.color from army a left join hero h on a.hero_name=h.name')
     xm=engine.execute('select max(x), max(y) from point_on_map')
+    conn=1
     
     #Ustalanie wymiaru mapy
     for k in xm:
         xmax, ymax=k[0], k[1]
-    ax.set_xlim(0, xmax)
+    ax.set_xlim(0, conn*xmax)
     ax.set_ylim(0, ymax)
-
+    
     #Zamek, armie - dicty z 2 listami i nazwami graczy jako klucze, wypełnianie punktami
+    hlegs=[]
     castel={}
     here={}
-    
+
     for w in csel:
         try:
             castel[w[2]].append((w[0], w[1]))
@@ -252,19 +261,19 @@ def map_maker(engine, ax):
         except:
             here[w[2]]=[(w[0], w[1])]
 
-    
     for x, y in castel.items():
-        #Poszukiwanie x-koloru, y-zamka, z-armii
+        #Poszukiwanie x-koloru, y-zamka, z-armia
         if (not x in here.keys()):
             here[x]=[]
         z=here[x]
 
         lst=list(zip(*y))
         lst2=list(zip(*z))
+        
 
         try:
             doubleprinter(ax, lst, lst2, colorland[x])
-
+            
         except:
             if (x==None):
                 clr='Grey'
@@ -278,14 +287,23 @@ def map_maker(engine, ax):
                 doubleprinter(ax, lst, lst2, vs)
             #Definiowanie nowego koloru dla usera w przypadku jego nieistnienia
             colorland[x]=vs
-    return
+        finally:
+            hlegs.append(Patch(facecolor=colorland[x], alpha=1.0, label=f"Player: {x}"))
+    hlegs.append(mlines.Line2D([], [], color='#FFFFFF', marker='P', markerfacecolor='#000000', markersize=15, label='Castle'))
+    hlegs.append(mlines.Line2D([], [], color='#FFFFFF', marker='o', markerfacecolor='#000000', markersize=15, label='Hero'))
+    ax.legend(handles=hlegs, loc=1, facecolor='#FFFFFF', shadow=1.0, prop={'size': 12})
+    ax.fill_between([xmax, conn*xmax], [0, 0], [ymax, ymax], color='#000000')
+    
+    
+    ax.set_xticks(ax.get_xticks()[ax.get_xticks()<=xmax])
+
 
 #Funkcja tworząca/updatująca mapę
 def inserto_creato_mapo(engine, arg='n'):
-    fig, ax=plt.subplots(1, 1, figsize=(18, 18))
+    fig, ax=plt.subplots(1, 1, figsize=(24, 18))
     if (arg=='n'):
         map_maker(engine, ax)
-        plt.savefig('arda.png')
+        plt.savefig('arda.png', bbox_inches='tight')
         
     plt.close()
 

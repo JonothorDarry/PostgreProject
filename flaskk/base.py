@@ -3,7 +3,7 @@ import flask
 from beatsoup import *
 from alchlib import *
 import codecs
-
+import subprocess
 app = Flask(__name__)
 
 #fas: 1 - update, wtedy w ite jest dict ze zmianami
@@ -19,15 +19,6 @@ app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 def static_file():
     return flask.send_file('arda.png', mimetype='kappa')
 
-"""
-@app.route("/imgs/<path:path>")
-def images(path):
-    fullpath = "./imgs/" + path
-    with codecs.open(fullpath, "r", encoding="utf-8") as rf:
-        resp = flask.make_response(rf.read())
-        resp.content_type = "image/jpg"
-        return resp
-"""
 
 #Dokąd prowadzi ten podróżnik? Buttony do mety, armii i innych
 def wanderer(pname):
@@ -38,6 +29,8 @@ def wanderer(pname):
     elif (pname=='play'):
         return 'players'
     return 'armys'
+
+
 
 #Zajmuje się insert/updatem
 def iu_handler(request, htm, name, engine, ret, erro):
@@ -71,8 +64,16 @@ def iu_handler(request, htm, name, engine, ret, erro):
             black_flag=vynn
             if (vynn[0]==1):
                 return redirect(url_for(erro))
-
+        inserto_creato_mapo(engine)
         return redirect(url_for(ret))
+
+
+def savedb(engine, name="mydba", dire="~/Downloads"):
+    cmd1=f"docker exec posts pg_dump -U postgres postgres > somalia/{name}"
+    cmd2=f"cp somalia/{name} {dire}"
+    
+    subprocess.call(cmd1, shell=True)
+    subprocess.call(cmd2, shell=True)
 
 
 #Zmiana HTML-a wyświetlanego: arr-tablice do zamiany, cf-kod htmla, engine - silnik bazy
@@ -153,7 +154,6 @@ def castles():
     if (request.method=='GET'):
         fil=open('../apps/3castle.html')
         cf=fil.read()
-        inserto_creato_mapo(engine)
         cf=select_preparer(engine, ["castle_on_map", "building_in_castle_on_map"], cf)
         return changer(cf, ["castle_on_map", "building_in_castle_on_map"])
 
@@ -171,11 +171,16 @@ def castles():
             qry=dictvisioner(request.form, alter=0)
             qry=parser('castle_on_map', opera='delete', wher=qry)
             mwynn=interactor(engine, qry)
+            inserto_creato_mapo(engine)
             return redirect(url_for('castles'))
         elif(z=='delb'):
             qry=dictvisioner(request.form, alter=0)
             qry=parser('building_in_castle_on_map', opera='delete', wher=qry)
             mwynn=interactor(engine, qry)
+            inserto_creato_mapo(engine)
+            return redirect(url_for('castles'))
+        elif(z=='saver'):
+            savedb(engine)
             return redirect(url_for('castles'))
 
         return redirect(url_for(wanderer(z)))
@@ -210,7 +215,6 @@ def armys():
         fil=open('../apps/5army.html')
         cf=fil.read()
         #Zmiana HTML-a wyświetlanego: 3 tablice do zamiany; selector: wybór danych dla tabeli, selhtmler zamienia x-a i tabelę w html-a, supchanger zamienia 1 kod na 2.
-        inserto_creato_mapo(engine)
         cf=select_preparer(engine, ["army", "hero", "army_connect"], cf)
         return changer(cf, ["army", "hero", "army_connect"])
     
@@ -228,21 +232,25 @@ def armys():
             
         elif(z=='dela'):
             mwynn=interactor(engine, "", tp='procp', arg=['army_slayer', [request.form['id_army']]]) 
+            inserto_creato_mapo(engine)
             return redirect(url_for('armys'))
         elif(z=='delh'):
             qry=dictvisioner(request.form, alter=0)
             qry=parser('hero', opera='delete', wher=qry)
             mwynn=interactor(engine, qry)
+            inserto_creato_mapo(engine)
             return redirect(url_for('armys'))
         elif(z=='delc'):
             qry=dictvisioner(request.form, alter=0)
             qry=parser('army_connect', opera='delete', wher=qry)
             mwynn=interactor(engine, qry)
+            inserto_creato_mapo(engine)
+            return redirect(url_for('armys'))
+        elif(z=='saver'):
+            savedb(engine)
             return redirect(url_for('armys'))
 
         return redirect(url_for(wanderer(z)))
-
-
 
 
 
@@ -261,7 +269,6 @@ def players():
         fil=open('../apps/2player.html')
         cf=fil.read()
         #Zmiana HTML-a wyświetlanego: 3 tablice do zamiany; selector: wybór danych dla tabeli, selhtmler zamienia x-a i tabelę w html-a, supchanger zamienia 1 kod na 2.
-        inserto_creato_mapo(engine)
         cf=select_preparer(engine, ["player"], cf)
         return changer(cf, ['player'])
     if (request.method=='POST'):
@@ -271,6 +278,10 @@ def players():
             return redirect(url_for('playeri'))
         elif(z=='del'):
             mwynn=interactor(engine, "", tp='procp', arg=['player_slayer', [request.form['color']]])
+            inserto_creato_mapo(engine)
+            return redirect(url_for('players'))
+        elif(z=='saver'):
+            savedb(engine)
             return redirect(url_for('players'))
         return redirect(url_for(wanderer(z)))
         
@@ -291,6 +302,17 @@ def hello_world():
         if (z=='creator'):
             c=request.form
             interactor(engine, "", tp='proc', arg=['map_creator', [c['wid'], c['hei']]])
+        elif(z=='loader'):
+            c=request.form
+            mwynn=interactor(engine, "", tp='procp', arg=['dissolution', []]) 
+            vv=request.form['disk']
+            mstr="/"
+            cmd1=f"docker cp {vv} posts:/home/"
+            cmd2=f'docker exec posts sh -c "psql -U postgres postgres < /home/{vv.split(mstr)[-1]}"'
+            subprocess.call(cmd1, shell=True)
+            subprocess.call(cmd2, shell=True)
+
+        inserto_creato_mapo(engine)
         return redirect(url_for('players'))
 
 
@@ -306,4 +328,5 @@ def add_header(response):
 
 if __name__ == '__main__':
     engine = create_engine('postgresql+psycopg2://postgres:dayne@localhost:54320/postgres', echo = False)
+    #interactor(engine, "", tp='proc', arg=['dissolution', []])
     app.run()
