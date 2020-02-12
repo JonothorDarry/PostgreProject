@@ -2,6 +2,8 @@ import sqlalchemy as sqla
 from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, sql
 import psycopg2
 import re
+import matplotlib.pyplot as plt
+import numpy as np
 
 def schanger(x, s1, s2):
     if (x in s1):
@@ -11,6 +13,22 @@ def schanger(x, s1, s2):
 #Parsowanie inserta/update'a/deleta
 def parser(table, opera, ins=None, wher=None):  
     exc=""
+    to_kill=[]
+    if (ins!=None):
+        for x, y in ins.items():
+            if (len(str(y))==0):
+                to_kill.append(x)
+        for x in to_kill:
+            ins.pop(x, None)
+    
+    if (wher!=None):
+        to_kill=[]
+        for x, y in wher.items():
+            if (str(x)=="hero_name" or (table=="castle_on_map" and str(x)=='color')):
+                to_kill.append(x)
+        for x in to_kill:
+            wher.pop(x, None)
+    
     if (opera=='insert'):
         ins1str=str([x for x in ins.keys()])[1:-1]
         ins2str=str([x for x in ins.values()])[1:-1]
@@ -187,10 +205,87 @@ def selhtmler(table, lst):
     for x in lst[0]:
         sv.append("<tr>")
         for y in x:
-            sv.append("<td>"+str(y)+"</td>")
+            sv.append(f"<td>{y}</td>")
         sv.append("</tr>")
     sv.append("</tbody>")
     sv.append("</table>")
     sv.append("</div>")
 
     return ''.join(sv)
+
+
+#Wyrysowanie 2 grup dla 1 koloru - armii i zamków
+def doubleprinter(ax, l1, l2, coll):
+        if (len(l1)>0):
+            ax.scatter(l1[0], l1[1], color=coll, s=70, marker='P')
+        if (len(l2)>0):
+            ax.scatter(l2[0], l2[1], color=coll)
+
+#Colorland to zbiór kolorów dla konkretnych graczy
+colorland={}
+#Twórca mapy dla jakiejś osi
+def map_maker(engine, ax):
+    #Poszukiwanie rzeczy w DB
+    csel=engine.execute('select x, y, color from castle_on_map')
+    csel2=engine.execute('select a.x, a.y, h.color from army a left join hero h on a.hero_name=h.name')
+    xm=engine.execute('select max(x), max(y) from point_on_map')
+    
+    #Ustalanie wymiaru mapy
+    for k in xm:
+        xmax, ymax=k[0], k[1]
+    ax.set_xlim(0, xmax)
+    ax.set_ylim(0, ymax)
+
+    #Zamek, armie - dicty z 2 listami i nazwami graczy jako klucze, wypełnianie punktami
+    castel={}
+    here={}
+    
+    for w in csel:
+        try:
+            castel[w[2]].append((w[0], w[1]))
+        except:
+            castel[w[2]]=[(w[0], w[1])]
+
+    for w in csel2:
+        try:
+            here[w[2]].append((w[0], w[1]))
+        except:
+            here[w[2]]=[(w[0], w[1])]
+
+    
+    for x, y in castel.items():
+        #Poszukiwanie x-koloru, y-zamka, z-armii
+        if (not x in here.keys()):
+            here[x]=[]
+        z=here[x]
+
+        lst=list(zip(*y))
+        lst2=list(zip(*z))
+
+        try:
+            doubleprinter(ax, lst, lst2, colorland[x])
+
+        except:
+            if (x==None):
+                clr='Grey'
+            else:
+                clr=str(x).lower()
+            try:
+                doubleprinter(ax, lst, lst2, clr)
+                vs=clr
+            except:
+                vs=np.random.uniform(0, 1, 3)
+                doubleprinter(ax, lst, lst2, vs)
+            #Definiowanie nowego koloru dla usera w przypadku jego nieistnienia
+            colorland[x]=vs
+    return
+
+#Funkcja tworząca/updatująca mapę
+def inserto_creato_mapo(engine, arg='n'):
+    fig, ax=plt.subplots(1, 1, figsize=(18, 18))
+    if (arg=='n'):
+        map_maker(engine, ax)
+        plt.savefig('arda.png')
+        
+    plt.close()
+

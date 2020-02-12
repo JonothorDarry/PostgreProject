@@ -1,6 +1,8 @@
-from flask import Flask, redirect, url_for, request
+from flask import Flask, redirect, url_for, request, send_from_directory
+import flask
 from beatsoup import *
 from alchlib import *
+import codecs
 
 app = Flask(__name__)
 
@@ -9,6 +11,23 @@ fas=0
 ite=0
 #Black flag - tu są składowane błędy
 black_flag=[0, '']
+
+app = Flask(__name__)
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+
+@app.route('/arda.png')
+def static_file():
+    return flask.send_file('arda.png', mimetype='kappa')
+
+"""
+@app.route("/imgs/<path:path>")
+def images(path):
+    fullpath = "./imgs/" + path
+    with codecs.open(fullpath, "r", encoding="utf-8") as rf:
+        resp = flask.make_response(rf.read())
+        resp.content_type = "image/jpg"
+        return resp
+"""
 
 #Dokąd prowadzi ten podróżnik? Buttony do mety, armii i innych
 def wanderer(pname):
@@ -134,6 +153,7 @@ def castles():
     if (request.method=='GET'):
         fil=open('../apps/3castle.html')
         cf=fil.read()
+        inserto_creato_mapo(engine)
         cf=select_preparer(engine, ["castle_on_map", "building_in_castle_on_map"], cf)
         return changer(cf, ["castle_on_map", "building_in_castle_on_map"])
 
@@ -190,6 +210,7 @@ def armys():
         fil=open('../apps/5army.html')
         cf=fil.read()
         #Zmiana HTML-a wyświetlanego: 3 tablice do zamiany; selector: wybór danych dla tabeli, selhtmler zamienia x-a i tabelę w html-a, supchanger zamienia 1 kod na 2.
+        inserto_creato_mapo(engine)
         cf=select_preparer(engine, ["army", "hero", "army_connect"], cf)
         return changer(cf, ["army", "hero", "army_connect"])
     
@@ -240,6 +261,7 @@ def players():
         fil=open('../apps/2player.html')
         cf=fil.read()
         #Zmiana HTML-a wyświetlanego: 3 tablice do zamiany; selector: wybór danych dla tabeli, selhtmler zamienia x-a i tabelę w html-a, supchanger zamienia 1 kod na 2.
+        inserto_creato_mapo(engine)
         cf=select_preparer(engine, ["player"], cf)
         return changer(cf, ['player'])
     if (request.method=='POST'):
@@ -270,6 +292,17 @@ def hello_world():
             c=request.form
             interactor(engine, "", tp='proc', arg=['map_creator', [c['wid'], c['hei']]])
         return redirect(url_for('players'))
+
+
+@app.after_request
+def add_header(response):
+    # response.cache_control.no_store = True
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '-1'
+    return response
+
+
 
 if __name__ == '__main__':
     engine = create_engine('postgresql+psycopg2://postgres:dayne@localhost:54320/postgres', echo = False)

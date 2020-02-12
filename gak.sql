@@ -83,10 +83,10 @@ create table Hero(
     name varchar(50) primary key,
     color varchar(50) not null,
     id_army int unique not null,
-    attack uint,
-    defence uint,
-    might uint,
-    wisdom uint,
+    attack uint default 0,
+    defence uint default 0,
+    might uint default 0,
+    wisdom uint default 0,
     constraint fk_playh foreign key(color) references player(color) on update cascade
 );
 

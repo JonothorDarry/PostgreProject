@@ -69,6 +69,7 @@ dbparse={
     
 }
 
+#Tworzenie selectów, egzekucja polecenia SQL
 def dispatcher(engine, name, myval=None):
     dick={
         'castle_on_map-color':'select color from player;',
@@ -78,11 +79,17 @@ def dispatcher(engine, name, myval=None):
         'hero-color':'select color from player;',
         'hero-id_army':'select id_army from army where hero_name is null;',
         'army_connect-id_army':'select id_army from army;',
-        'army_connect-unit_name':'select unit_name from unit;',    
+        'army_connect-unit_name':'select unit_name from unit;', 
     }
     
     allezklar=f"<select name={name}>"
-    for s in engine.execute(dick[name]):
+    #command to execute
+    cte=dick[name]
+    if (name=='hero-id_army' and myval!=None):
+        cte=f"{cte[:-1]} union select id_army from army where id_army={myval};"
+
+
+    for s in engine.execute(cte):
         s=[str(x) for x in s]
         if (myval==None or "-".join(list(s))!=myval):
             allezklar=allezklar+f'<option value="{"-".join(list(s))}">{"-".join(list(s))}</option>'
