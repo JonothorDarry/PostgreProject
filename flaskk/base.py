@@ -108,9 +108,13 @@ def microchecker(z, formz):
     
     fas=0
     if ('upd' in z):
-        qry=dictvisioner(formz, alter=0)
-        fas=1
-        ite=qry
+        if (len(formz)>1):
+            qry=dictvisioner(formz, alter=0)
+            fas=1
+            ite=qry
+            return 1
+        return -1
+    return 1
 
 
 
@@ -160,11 +164,15 @@ def castles():
     if (request.method=='POST'):
         z=request.form['which']
         if (z=='insc' or z=='updc'):
-            microchecker(z, request.form)
+            rs=microchecker(z, request.form)
+            if (rs==-1):
+                return redirect(url_for('castles'))
             return redirect(url_for('castlei'))
             
         elif (z=='insb' or z=='updb'):
-            microchecker(z, request.form)
+            rs=microchecker(z, request.form)
+            if (rs==-1):
+                return redirect(url_for('castles'))
             return redirect(url_for('buildi'))
             
         elif(z=='delc'):
@@ -221,17 +229,30 @@ def armys():
     if (request.method=='POST'):
         z=request.form['which']
         if (z=='insa' or z=='upda'):
-            microchecker(z, request.form)
+            rs=microchecker(z, request.form)
+            if (rs==-1):
+                return redirect(url_for('armys'))
             return redirect(url_for('armyi')) 
         elif (z=='insh' or z=='updh'):
-            microchecker(z, request.form)
+            rs=microchecker(z, request.form)
+            if (rs==-1):
+                return redirect(url_for('armys'))
             return redirect(url_for('heroi'))
         elif (z=='insc' or z=='updc'):
-            microchecker(z, request.form)
+            rs=microchecker(z, request.form)
+            if (rs==-1):
+                return redirect(url_for('armys'))
             return redirect(url_for('aconi'))
             
         elif(z=='dela'):
-            mwynn=interactor(engine, "", tp='procp', arg=['army_slayer', [request.form['id_army']]]) 
+            #Removal armii: szystko albo jedna
+            if (not 'id_army' in request.form):
+                mn=engine.execute('select id_army from army')
+                for xvf in mn:
+                    interactor(engine, "", tp='procp', arg=['army_slayer', [xvf[0]]])
+            else:
+                mwynn=interactor(engine, "", tp='procp', arg=['army_slayer', [request.form['id_army']]])
+
             inserto_creato_mapo(engine)
             return redirect(url_for('armys'))
         elif(z=='delh'):
@@ -274,10 +295,17 @@ def players():
     if (request.method=='POST'):
         z=request.form['which']
         if (z=='ins' or z=='upd'):
-            microchecker(z, request.form)
+            rs=microchecker(z, request.form)
+            if (rs==-1):
+                return redirect(url_for('players'))
             return redirect(url_for('playeri'))
         elif(z=='del'):
-            mwynn=interactor(engine, "", tp='procp', arg=['player_slayer', [request.form['color']]])
+            if (not 'color' in request.form):
+                mn=engine.execute('select color from player')
+                for xvf in mn:
+                    interactor(engine, "", tp='procp', arg=['player_slayer', [xvf[0]]])
+            else:
+                mwynn=interactor(engine, "", tp='procp', arg=['player_slayer', [request.form['color']]])
             inserto_creato_mapo(engine)
             return redirect(url_for('players'))
         elif(z=='saver'):
