@@ -76,7 +76,7 @@ dbparse={
         "army_connect-id_army":["Army id", "select", "Army of this unit"],
         "army_connect-position":["Positon", "number", "Position in army - number between 1 and 7", ["1", "7"]],
         "army_connect-unit_name":["Unit", "select", "Name of an unit"],
-        "army_connect-number_of_units":["Number", "text", "Number of units on this position, lower than 5*10^7", ["0", "50000000"]],
+        "army_connect-number_of_units":["Number", "number", "Number of units on this position, lower than 5*10^7", ["0", "50000000"]],
     } 
 }
 

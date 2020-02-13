@@ -172,6 +172,21 @@ sorto=function(e){
   }
 }
 
+dello=function(e){
+	e = e || window.event;
+  var target = e.target || e.srcElement,
+    text = target.textContent || target.innerText;
+  document.getElementById(target.getAttribute("form")).setAttribute("data-passer", "del");
+}
+
+submitter=function(f){
+	if (f.hasAttribute("data-passer") && f.getAttribute("data-passer")=="del" && f.getElementsByTagName("input").length==0){
+		f.removeAttribute("data-passer");
+		return confirm('Do You really want to delete all entries in this table?');
+	}
+  return true;
+}
+
 starter=function(){
 	var i=0, j=0, x=document.getElementsByTagName("th"), y, z, res="";
   for (i=0;i<x.length;i++){
@@ -204,3 +219,11 @@ for (i = 0; i < morbidu.length; i += 1) {
   morbidu[i].addEventListener('click', sorto, false);
   morbidd[i].addEventListener('click', sorto, false);
 }
+
+var z=document.getElementsByTagName("button");
+for (i = 0; i < z.length; i += 1) {
+  if (z[i].hasAttribute("value") && z[i].getAttribute("value").includes("del"))	{
+    z[i].addEventListener('click', dello, false);
+  }
+}
+

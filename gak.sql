@@ -218,6 +218,7 @@ begin
 
 end $$;
 
+--Siła ognia gracza
 create or replace function firepower(x1 text)
 	returns table(max_d bigint, min_d bigint, att bigint, def bigint, health bigint, speed bigint) as
 $$

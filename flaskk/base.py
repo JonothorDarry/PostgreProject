@@ -329,10 +329,10 @@ def hello_world():
         z=request.form['which']
         if (z=='creator'):
             c=request.form
+            subprocess.call('../velvet_updater.sh', shell=True)
             interactor(engine, "", tp='proc', arg=['map_creator', [c['wid'], c['hei']]])
         elif(z=='loader'):
             c=request.form
-            mwynn=interactor(engine, "", tp='procp', arg=['dissolution', []]) 
             vv=request.form['disk']
             mstr="/"
             cmd1=f"docker cp {vv} posts:/home/"
@@ -356,5 +356,4 @@ def add_header(response):
 
 if __name__ == '__main__':
     engine = create_engine('postgresql+psycopg2://postgres:dayne@localhost:54320/postgres', echo = False)
-    #interactor(engine, "", tp='proc', arg=['dissolution', []])
     app.run()

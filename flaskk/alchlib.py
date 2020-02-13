@@ -7,7 +7,7 @@ import matplotlib.patches as patch
 from matplotlib.patches import Patch
 import matplotlib.lines as mlines
 import numpy as np
-
+import math
 
 def schanger(x, s1, s2):
     if (x in s1):
@@ -187,7 +187,25 @@ def selector(engine, table, order=None, col=None):
     res=[]
     for x in f:
         res.append(x)
-    return (res, cols)
+    #Dodanie generowanej funkcji
+    if (table=='player'):
+        cols.append("estimated_power")
+        lst=[]
+        
+        for x in res:
+            wn=engine.execute(f"select firepower('{x[0]}')")
+            for y in wn:
+                y=y[0]
+                if (len(y)>10):
+                    y=[int(z) for z in y[1:-1].split(',')]
+                    wnn=math.log((y[0]+y[1])/2*math.sqrt(y[4])+y[5]/100+(y[2]+y[3])/2)
+                else:
+                    wnn=0
+            #print(x[0], wn)
+            lst.append([*x, wnn])
+
+        return (lst, cols)
+    return(res, cols)
 
 #twórca tablicy z zapytania selecta(lst) i nazwy tabeli(table)
 def selhtmler(table, lst):
@@ -260,6 +278,8 @@ def map_maker(engine, ax):
             here[w[2]].append((w[0], w[1]))
         except:
             here[w[2]]=[(w[0], w[1])]
+        if (not w[2] in castel):
+            castel[w[2]]=[]
 
     for x, y in castel.items():
         #Poszukiwanie x-koloru, y-zamka, z-armia
