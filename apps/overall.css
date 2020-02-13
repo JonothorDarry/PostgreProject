@@ -305,38 +305,34 @@ select{
 
 
 
-
 /*forma: lewa, środek, prawa, wiersz*/
 .lform{
-  position: sticky;
   display: inline-block;
   left: 0%;
   top: 0%;
   bottom: 0%;
   right: 85%;
+  width:25%;
   text-align: right;
-  float: right;
 }
 
 .mform{
-  position: sticky;
   display: inline-block;
   left: 20%;
   top: 0%;
   bottom: 0%;
-  right: 55%;
-  text-align: center;
+  right: 45%;
+  width:30%;
 }
 
 .rform{
-  position: sticky;
   display: inline-block;
   left: 45%;
   top: 0%;
   bottom: 0%;
   right: 0%;
+  width:40%;
   text-align: left;
-  float: left;
 }
 
 .formverse{
