@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  </head>
+
+  <body>
+	  <form id="nonex"></form>
+	<h1>Manual for user</h1>
+	<ul>
+		<li>There are four main operations user can do in this application: Insert single thing (for example, add new player), update single row, delete single row or delete all rows of the table.
+		Besides, user can see the visualised after change symbolic map, save map or load it, create new map, or select something from existing table (with sorting!) </li>
+		<li>Clicking button "save" results in dumping database to ~/Downloads/mydba file. You can retrieve such database by giving absolute path to Your database to an application on a load screen</li>
+		<li>Creating new map with given size creates new map unless user specified height or width of a map &gt;500 or &lt;1 </li>
+		<li>Inserting given user's parameter inserts single row, if it obeys basic rules of of the game - two players cannot share same name, two castles cannot lie on the same point
+			and more than two armies cannot lie on the same point</li>
+		<li>Updating works analogously, but one cannot update non-existent row - what follows, without clicking on a certain row update does not work in any way.</li>
+		<li>If user clicks on a row and THEN, without clicking on any other row/button clicks delete, then the row is deleted. If user doesn't provide the row, he is asked whether he
+		would like to delete whole table content</li>
+		<li>Deleting army implies destruction of all heroes and units (stored in army connect) connected with that army</li>
+		<li>Deleting castle or updating it's type implies destruction of all buildings connected with this castle</li>
+		<li>Deleting player implies destruction of armies associated with this player, heroes become neutral</li>
+		<li>The estimation of power works in logarithmic scale, which is logical given the fact that map should show beginning of the game</li>
+	</ul>
+
+      <div id="buttonz">
+        <button class=button1 form="nonex" type="submit" formmethod="post" name="which" value="play">Players Table</button>
+        <button class=button1 form="nonex" type="submit" formmethod="post" name="which" value="cast">Castles Table</button>
+        <button class=button1 form="nonex" type="submit" formmethod="post" name="which" value="arm">Armies Table</button>
+        <button class=button1 form="nonex" type="submit" formmethod="post" name="which" value="met">Metaknowledge</button>
+      </div>
+      
+    </div>
+
+    
+  </body>
+</html>

@@ -28,7 +28,7 @@ def parser(table, opera, ins=None, wher=None):
     if (wher!=None):
         to_kill=[]
         for x, y in wher.items():
-            if (str(x)=="hero_name" or (table=="castle_on_map" and str(x)=='color')):
+            if (str(x)=="hero_name" or (table=="castle_on_map" and str(x)=='color') or str(x)=='estimated_power'):
                 to_kill.append(x)
         for x in to_kill:
             wher.pop(x, None)

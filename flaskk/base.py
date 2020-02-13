@@ -28,6 +28,8 @@ def wanderer(pname):
         return ('metas')
     elif (pname=='play'):
         return 'players'
+    elif (pname=='help'):
+        return 'helper'
     return 'armys'
 
 
@@ -140,6 +142,17 @@ def metas():
         return redirect(url_for(wanderer(z)))
 
 
+#Helper
+@app.route('/helper', methods = ['POST', 'GET'])
+def helper():
+    if (request.method=='GET'):
+        fil=open('../apps/12helper.html')  #Otwarcie html-a
+        cf=fil.read()
+        return changer(cf, []) #Zwracanie HTML-a
+    #Zmiana lokacji
+    if (request.method=='POST'):
+        z=request.form['which']
+        return redirect(url_for(wanderer(z)))
 
 
 
