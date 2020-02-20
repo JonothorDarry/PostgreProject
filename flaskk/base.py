@@ -41,7 +41,7 @@ def iu_handler(request, htm, name, engine, ret, erro):
     global black_flag
     #Pokazanie interfejsu, uzależnienie od tego, czy insert, czy update(fas), czarna flaga - zaszedł błąd
     if (request.method=='GET'):
-        fil=open(htm)
+        fil=openize(htm)
         cf=fil.read()
         if (fas!=0):
             cf=htcreat(cf, name, engine, fas, ite)
@@ -119,11 +119,10 @@ def microchecker(z, formz):
     return 1
 
 
-
 #CSS
 @app.route('/overall.css')
 def css_route():
-    fil=open('../apps/overall.css')
+    fil=openize('../apps/overall.css')
     return fil.read() 
 
 
@@ -132,7 +131,7 @@ def css_route():
 @app.route('/metasel', methods = ['POST', 'GET'])
 def metas():
     if (request.method=='GET'):
-        fil=open('../apps/4meta.html')  #Otwarcie html-a
+        fil=openize('../apps/4meta.html')  #Otwarcie html-a
         cf=fil.read()
         cf=select_preparer(engine, ["unit", "resources", "castles", "castle_building"], cf) #SQL->HTML
         return changer(cf, ['castles', 'castle_building', 'resources', 'unit']) #Zwracanie HTML-a
@@ -146,7 +145,7 @@ def metas():
 @app.route('/helper', methods = ['POST', 'GET'])
 def helper():
     if (request.method=='GET'):
-        fil=open('../apps/12helper.html')  #Otwarcie html-a
+        fil=openize('../apps/12helper.html')  #Otwarcie html-a
         cf=fil.read()
         return changer(cf, []) #Zwracanie HTML-a
     #Zmiana lokacji
@@ -169,7 +168,7 @@ def buildi():
 @app.route('/castlesel', methods = ['POST', 'GET'])
 def castles():
     if (request.method=='GET'):
-        fil=open('../apps/3castle.html')
+        fil=openize('../apps/3castle.html')
         cf=fil.read()
         cf=select_preparer(engine, ["castle_on_map", "building_in_castle_on_map"], cf)
         return changer(cf, ["castle_on_map", "building_in_castle_on_map"])
@@ -233,7 +232,7 @@ def aconi():
 @app.route('/armysel', methods = ['POST', 'GET'])
 def armys():
     if (request.method=='GET'):
-        fil=open('../apps/5army.html')
+        fil=openize('../apps/5army.html')
         cf=fil.read()
         #Zmiana HTML-a wyświetlanego: 3 tablice do zamiany; selector: wybór danych dla tabeli, selhtmler zamienia x-a i tabelę w html-a, supchanger zamienia 1 kod na 2.
         cf=select_preparer(engine, ["army", "hero", "army_connect"], cf)
@@ -300,7 +299,7 @@ def playeri():
 @app.route('/playersel', methods = ['POST', 'GET'])
 def players():
     if (request.method=='GET'):
-        fil=open('../apps/2player.html')
+        fil=openize('../apps/2player.html')
         cf=fil.read()
         #Zmiana HTML-a wyświetlanego: 3 tablice do zamiany; selector: wybór danych dla tabeli, selhtmler zamienia x-a i tabelę w html-a, supchanger zamienia 1 kod na 2.
         cf=select_preparer(engine, ["player"], cf)
@@ -334,7 +333,7 @@ def players():
 @app.route('/', methods = ['POST', 'GET'])
 def hello_world():
     if (request.method=='GET'):
-        fil=open('../apps/1start.html')
+        fil=openize('../apps/1start.html')
         cf=fil.read()
         return changer(cf)
 
@@ -342,7 +341,9 @@ def hello_world():
         z=request.form['which']
         if (z=='creator'):
             c=request.form
-            subprocess.call('../velvet_updater.sh', shell=True)
+            dirname = os.path.dirname(__file__)
+            filename = os.path.join(dirname, '../velvet_updater.sh')
+            subprocess.call(filename, shell=True)
             interactor(engine, "", tp='proc', arg=['map_creator', [c['wid'], c['hei']]])
         elif(z=='loader'):
             c=request.form

@@ -2,6 +2,7 @@ import sqlalchemy as sqla
 from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, sql
 import psycopg2
 import re
+import os
 import matplotlib.pyplot as plt
 import matplotlib.patches as patch
 from matplotlib.patches import Patch
@@ -323,7 +324,9 @@ def inserto_creato_mapo(engine, arg='n'):
     fig, ax=plt.subplots(1, 1, figsize=(24, 18))
     if (arg=='n'):
         map_maker(engine, ax)
-        plt.savefig('arda.png', bbox_inches='tight')
+        dirname = os.path.dirname(__file__)
+        filename = os.path.join(dirname, 'arda.png')
+        plt.savefig(filename, bbox_inches='tight')
         
     plt.close()
 

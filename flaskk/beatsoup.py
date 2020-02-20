@@ -1,18 +1,24 @@
+import os
 from bs4 import BeautifulSoup
 from alchlib import *
 
+def openize(pather):
+    dirname = os.path.dirname(__file__)
+    filename = os.path.join(dirname, pather)
+    return open(filename)
+
 def changer(html_file, tablez=None):
     soup = BeautifulSoup(html_file, 'html.parser')
-    fil=open('../apps/overall.css')
+    fil=openize('../apps/overall.css')
     z=fil.read()
     z="<head>\n<style>\n"+z+"\n</style>\n</head>"
     zv="<script>"
     if (tablez!=None):
         zv=zv+f"let docs = {str(tablez)};\n" 
-        fil=open('../apps/cud.js')
+        fil=openize('../apps/cud.js')
         zv=zv+fil.read()
     else:
-        fil=open('../apps/inserto.js')
+        fil=openize('../apps/inserto.js')
         zv=zv+fil.read()
 
     zv=zv+"</script>"
